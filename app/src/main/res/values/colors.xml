@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="signa_green">#FF9FE271</color>
+    <color name="signa_background">#FFF5FFEF</color>
+    <color name="signa_dark">#FF44405D</color>
+    <color name="signa_light">#FFFEFEFE</color>
+    <color name="signa_red">#FFFF4D4A</color>
+    <color name="signa_yellow">#FFFFE14A</color>
+</resources>
