@@ -12,7 +12,7 @@
     <string name="login">Iniciar sesión</string>
     <string name="register">Registrarme</string>
     <string name="login_screen_logo">Logo de la aplicación</string>
-    <string name="continue_as_guest">Continuar como invitado</string>
+    <string name="continue_as_guest">invitado</string>
     <string name="inicio">Inicio</string>
     <string name="guest">Invitado</string>
     <string name="diccionario">Diccionario</string>

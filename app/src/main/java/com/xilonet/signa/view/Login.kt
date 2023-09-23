@@ -1,7 +1,10 @@
 package com.xilonet.signa.view
 
+import android.graphics.LinearGradient
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,8 +14,11 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.luminance
+
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -27,45 +33,61 @@ import com.xilonet.signa.R
 import com.xilonet.signa.controller.Screen
 import com.xilonet.signa.model.HTTPUserManager
 import com.xilonet.signa.view.theme.SignaDark
+import com.xilonet.signa.view.theme.SignaDarka
+import com.xilonet.signa.view.theme.SignaDarkaa
 import com.xilonet.signa.view.theme.SignaGreen
+
 import com.xilonet.signa.view.theme.SignaLight
 import com.xilonet.signa.view.theme.SignaRed
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
+
 @Composable
-fun LoginUI(navController: NavController){
-    Surface(Modifier.fillMaxSize(), color = SignaGreen){
-        // From top to bottom:
+fun LoginUI(navController: NavController) {
+    val gradientColors = listOf(
+        SignaDarkaa,
+        Color.Transparent // Cambia esto al color de fondo que desees
+    )
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Agrega un fondo con el gradiente
+        Box(
+            modifier = Modifier.fillMaxSize().background(brush = Brush.verticalGradient(gradientColors)),
+        )
+
         Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.fillMaxHeight(0.15f))
+            Spacer(Modifier.fillMaxHeight(0.18f))
             AppNameBanner()
-        }
-
-        // From bottom to top:
-        Column(
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+            Spacer(modifier = Modifier.weight(1f))
             LoginFieldsAndButton() { navController.navigate(Screen.Inicio.route) }
             Spacer(Modifier.fillMaxHeight(0.3f))
         }
     }
-
 }
+
+
+
 
 @Composable
 private fun AppNameBanner(){
+
+
     Image(
         painter = painterResource(R.drawable.login_screen_logo),
         contentDescription = stringResource(R.string.login_screen_logo),
-        colorFilter = ColorFilter.tint(color = SignaDark),
+        colorFilter = ColorFilter.tint(color = SignaDarka),
         contentScale = ContentScale.FillWidth,
-        modifier = Modifier.fillMaxWidth(0.7f)
+        modifier = Modifier.fillMaxWidth(0.10f)
     )
 }
 
