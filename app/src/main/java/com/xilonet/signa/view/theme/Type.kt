@@ -22,7 +22,7 @@ val Typography = Typography(
         fontFamily = Poppins,
         fontWeight = FontWeight.ExtraBold,
         fontSize = 64.sp,
-        color = SignaGreen
+        color = SignaBackground
     ),
     body1 = TextStyle(
         fontFamily = Poppins,

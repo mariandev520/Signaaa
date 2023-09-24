@@ -1,6 +1,9 @@
 package com.xilonet.signa.view
 
 import android.util.Log
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.material.Button
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
@@ -25,6 +29,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -37,6 +44,9 @@ import com.xilonet.signa.controller.Screen
 import com.xilonet.signa.model.HTTPUserManager
 import com.xilonet.signa.model.UserInfo
 import com.xilonet.signa.view.theme.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun InicioUI(navController: NavController){
@@ -80,7 +90,7 @@ private fun FullHeader(userInfo: UserInfo?){
             .background(SignaGreen)
     ) {
         HeaderTitle(stringResource(R.string.inicio))
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(10.dp))
         val fullUserName = if(userInfo != null) {
                                 userInfo.firstName + " " + userInfo.lastName
                             } else {
@@ -112,7 +122,7 @@ private fun UserInfoBanner(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .border(2.dp, SignaDark, CircleShape),
+                .border(2.dp, SignaYellow, CircleShape),
             alignment = Alignment.CenterStart
         )
         Spacer(Modifier.width(8.dp))
@@ -126,26 +136,61 @@ private fun UserInfoBanner(
 }
 
 @Composable
-private fun InicioButton(text: String,
-                 graphicBgColor: Color,
-                 icon: Painter,
-                 onClick: () -> Unit
-){
+private fun InicioButton(
+    text: String,
+    graphicBgColor: Color,
+    icon: Painter,
+    onClick: () -> Unit
+) {
+    var isPressed by remember { mutableStateOf(false) }
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.9f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessLow)
+    )
+
     Button(
-        onClick = onClick,
+        onClick = {
+            onClick()
+            isPressed = true
+            // Restaurar el estado después de un breve retraso para la animación de pulsación.
+            GlobalScope.launch {
+                delay(100)
+                isPressed = false
+            }
+        },
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp),
-        colors = ButtonDefaults.buttonColors(backgroundColor = SignaLight),
-        shape = RoundedCornerShape(10.dp),
+            .height(200.dp)
+            .padding(16.dp)
+            .shadow(4.dp, RoundedCornerShape(8.dp), clip = false),
+        shape = RoundedCornerShape(8.dp),
         border = BorderStroke(2.dp, SignaDark),
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = if (isPressed) SignaBackground else SignaGreen,
+            contentColor = Color.White
+        )
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+                .clickable { onClick() }
+                .scale(scale) // Aplicar la animación de escala
+                .align(Alignment.CenterVertically)
+        ) {
             BackgroundGraphicWithLogo(icon = icon, bgColor = graphicBgColor)
-            Text(text = text, style = MaterialTheme.typography.body1, fontSize = 24.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.h5,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
+
 
 @Composable
 private fun BackgroundGraphicWithLogo(size: Dp = 128.dp,

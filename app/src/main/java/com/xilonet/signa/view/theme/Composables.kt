@@ -26,7 +26,7 @@ fun HeaderTitle(text: String){
     Column() {
         Spacer(Modifier.height(8.dp))
         Text(
-            text = text, style = MaterialTheme.typography.body1, fontSize = 28.sp,
+            text = text, style = MaterialTheme.typography.body1, fontSize = 30.sp,
             modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center
         )
     }

@@ -1,8 +1,8 @@
 package com.xilonet.signa.view
 
-import android.graphics.LinearGradient
+
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
+
 import androidx.compose.foundation.background
 
 import androidx.compose.foundation.border
@@ -39,6 +39,7 @@ import com.xilonet.signa.view.theme.SignaGreen
 
 import com.xilonet.signa.view.theme.SignaLight
 import com.xilonet.signa.view.theme.SignaRed
+import com.xilonet.signa.view.theme.SignaYellow
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +48,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginUI(navController: NavController) {
     val gradientColors = listOf(
-        SignaDarkaa,
+        SignaYellow,
         Color.Transparent // Cambia esto al color de fondo que desees
     )
 
@@ -67,7 +68,7 @@ fun LoginUI(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.fillMaxHeight(0.18f))
-            AppNameBanner()
+
             Spacer(modifier = Modifier.weight(1f))
             LoginFieldsAndButton() { navController.navigate(Screen.Inicio.route) }
             Spacer(Modifier.fillMaxHeight(0.3f))
@@ -78,18 +79,6 @@ fun LoginUI(navController: NavController) {
 
 
 
-@Composable
-private fun AppNameBanner(){
-
-
-    Image(
-        painter = painterResource(R.drawable.login_screen_logo),
-        contentDescription = stringResource(R.string.login_screen_logo),
-        colorFilter = ColorFilter.tint(color = SignaDarka),
-        contentScale = ContentScale.FillWidth,
-        modifier = Modifier.fillMaxWidth(0.10f)
-    )
-}
 
 private lateinit var coroutineScope : CoroutineScope
 
@@ -121,7 +110,7 @@ private fun LoginFieldsAndButton(goToInicio: () -> Unit) {
         keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
         label = {
             Text(
-                text = stringResource(R.string.correo),
+                text = stringResource(R.string.email),
                 fontSize = 18.sp,
                 color = Color.Gray
             )
@@ -148,7 +137,7 @@ private fun LoginFieldsAndButton(goToInicio: () -> Unit) {
         keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
         label = {
             Text(
-                text = stringResource(R.string.contrasena),
+                text = stringResource(R.string.prompt_password),
                 fontSize = 18.sp,
                 color = Color.Gray
             )

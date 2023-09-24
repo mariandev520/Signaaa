@@ -14,15 +14,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 
 // Colores originales
-var SignaGreen = Color(0x889500FF)
-var SignaBackground = Color(0xFFF5FFEF)
+var SignaGreen = Color(0x9CCAE9EC)
+var SignaBackground = Color(0xFF4DD0E1)
 var SignaDark = Color(0xFF44405D)
 var SignaDarkSemiTransparent = Color(0xFF6A1B9A)
 var SignaDarkVeryTransparent = Color(0xFFBF360C)
 var SignaLight = Color(0xFFE0F7FA)
 var SignaRed = Color(0xFFFF4D4A)
 var SignaYellow = Color(0xFF2196F3)
-var SignaDarka = Color(0xFF6200EA)
+var SignaDarka = Color(0xFF9FA8DA)
 var SignaDarkaa = Color(0xFF000000)
 
 

@@ -5,7 +5,7 @@
     android:viewportHeight="24">
   <group>
     <path android:name="square"
-        android:fillColor="@color/signa_yellow"
+        android:fillColor="@color/signa_light"
         android:pathData="M0,0h108v108h-108z" />
     <path
         android:fillColor="@color/signa_dark"
