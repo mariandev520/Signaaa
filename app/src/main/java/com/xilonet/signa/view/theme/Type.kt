@@ -1,6 +1,7 @@
 package com.xilonet.signa.view.theme
 
 import androidx.compose.material.Typography
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -28,7 +29,7 @@ val Typography = Typography(
         fontFamily = Poppins,
         fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp,
-        color = SignaDark
+        color = Color.Black
     ),
     body2 = TextStyle(
         fontFamily = Poppins,
@@ -46,7 +47,7 @@ val Typography = Typography(
         fontFamily = Poppins,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
-        color = SignaDarkSemiTransparent
+        color = Color.Black
     )
     /* Other default text styles to override
     button = TextStyle(
