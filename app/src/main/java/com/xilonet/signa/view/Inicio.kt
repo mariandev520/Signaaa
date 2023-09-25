@@ -1,5 +1,6 @@
 package com.xilonet.signa.view
 
+import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -44,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -69,22 +71,26 @@ import kotlinx.coroutines.launch
 fun InicioUI(navController: NavController) {
     val userInfo by remember { mutableStateOf(HTTPUserManager.getUserInfo()) }
 
+    val isPortrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
+
+    val scaleFactor = if (isPortrait) 1f else 0.5f // Factor de escala del 50% en orientación horizontal
+
     Image(
-        painter = painterResource(id = R.drawable.backa), // Reemplaza con el ID de tu imagen de fondo
+        painter = painterResource(id = R.drawable.backa),
         contentDescription = null,
         modifier = Modifier
             .fillMaxWidth()
-            .height(1500.dp) // Ajusta la altura según tus necesidades
-            .alpha(0.4f), // Ajusta el valor alpha para la transparencia deseada (0.0f a 1.0f)
+            .height(1500.dp)
+            .alpha(0.4f)
+            .scale(scaleFactor), // Aplicar la escala al fondo
         contentScale = ContentScale.Crop
     )
-    Column(
 
-    ) {
+    Column {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(240.dp)
+                .height(240.dp * scaleFactor) // Aplicar la escala a la altura
                 .background(Color.Transparent)
         ) {
             Column(
@@ -98,11 +104,11 @@ fun InicioUI(navController: NavController) {
                     painter = painterResource(R.drawable.guest_user_profile_pic),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(80.dp)
+                        .size(80.dp * scaleFactor) // Aplicar la escala al tamaño de la imagen
                         .clip(CircleShape)
                         .background(Color.White)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp * scaleFactor)) // Aplicar la escala al espacio
                 Text(
                     text = userInfo?.firstName ?: "Invitado",
                     style = MaterialTheme.typography.h5,
@@ -111,18 +117,15 @@ fun InicioUI(navController: NavController) {
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp * scaleFactor)) // Aplicar la escala al espacio
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(40.dp)
+                .padding(40.dp * scaleFactor) // Aplicar la escala al relleno
         ) {
             LazyRow(
-
-                modifier = Modifier.fillMaxWidth()
-
-                    .padding(40.dp)
+                modifier = Modifier.fillMaxWidth().padding(40.dp * scaleFactor) // Aplicar la escala al relleno
             ) {
                 item {
                     InicioButton(
@@ -151,11 +154,29 @@ fun InicioUI(navController: NavController) {
                     )
                 }
                 // Agrega más elementos InicioButton si es necesario
+
+                item {
+                    InicioButton(
+                        text = "Quiz",
+                        graphicBgColor = Color(0xFFE57373),
+                        icon = painterResource(R.drawable.quiz_icon),
+                        onClick = { navController.navigate(Screen.QuizCustomizer.route) }
+                    )
+                }
+
+                item {
+                    InicioButton(
+                        text = "Quiz",
+                        graphicBgColor = Color(0xFFE57373),
+                        icon = painterResource(R.drawable.quiz_icon),
+                        onClick = { navController.navigate(Screen.QuizCustomizer.route) }
+                    )
+                }
             }
         }
     }
-}
 
+    }
 
 @Composable
 private fun FullHeader(userInfo: UserInfo?){
@@ -241,8 +262,8 @@ private fun InicioButton(
             .fillMaxWidth()
             .height(200.dp)
             .padding(16.dp)
-            .shadow(4.dp, RoundedCornerShape(60.dp), clip = false),
-        shape = RoundedCornerShape(60.dp),
+            .shadow(4.dp, RoundedCornerShape(8.dp), clip = false),
+        shape = RoundedCornerShape(8.dp),
         border = BorderStroke(2.dp, SignaDark),
         colors = ButtonDefaults.buttonColors(
             backgroundColor = if (isPressed) SignaBackground else SignaGreen,
@@ -268,6 +289,7 @@ private fun InicioButton(
         }
     }
 }
+
 
 
 @Composable

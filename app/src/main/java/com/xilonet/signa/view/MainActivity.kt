@@ -3,20 +3,13 @@ package com.xilonet.signa.view
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.xilonet.signa.controller.SetupNavGraph
 import com.xilonet.signa.view.theme.SignaBackground
-import com.xilonet.signa.view.theme.SignaGreen
 import com.xilonet.signa.view.theme.SignaTheme
 
 /* TODO:
@@ -41,7 +34,18 @@ class MainActivity : ComponentActivity() {
                     SetupNavGraph(navController = navController, context = applicationContext)
                 }
             }
-        }
-    }
 
+        }
+
+
+    }
 }
+
+
+
+
+
+
+
+
+
