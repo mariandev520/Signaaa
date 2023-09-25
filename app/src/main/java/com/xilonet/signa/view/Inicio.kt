@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -65,7 +66,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun InicioUI(navController: NavController){
+fun InicioUI(navController: NavController) {
     val userInfo by remember { mutableStateOf(HTTPUserManager.getUserInfo()) }
 
     Image(
@@ -115,31 +116,41 @@ fun InicioUI(navController: NavController){
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(40.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp)
+            LazyRow(
+
+                modifier = Modifier.fillMaxWidth()
+
+                    .padding(40.dp)
             ) {
-                InicioButton(
-                    text = "Diccionario",
-                    graphicBgColor = Color(0xFFD50000),
-                    icon = painterResource(R.drawable.library_icon),
-                    onClick = { navController.navigate(Screen.Diccionario.route) }
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp)
-            ) {
-                InicioButton(
-                    text = "Quiz",
-                    graphicBgColor = Color(0xFFE57373),
-                    icon = painterResource(R.drawable.quiz_icon),
-                    onClick = { navController.navigate(Screen.QuizCustomizer.route) }
-                )
+                item {
+                    InicioButton(
+                        text = "Diccionario",
+                        graphicBgColor = Color(0xFFD50000),
+                        icon = painterResource(R.drawable.library_icon),
+                        onClick = { navController.navigate(Screen.Diccionario.route) }
+                    )
+                }
+
+                item {
+                    InicioButton(
+                        text = "Quiz",
+                        graphicBgColor = Color(0xFFE57373),
+                        icon = painterResource(R.drawable.quiz_icon),
+                        onClick = { navController.navigate(Screen.QuizCustomizer.route) }
+                    )
+                }
+
+                item {
+                    InicioButton(
+                        text = "Quiz",
+                        graphicBgColor = Color(0xFFE57373),
+                        icon = painterResource(R.drawable.quiz_icon),
+                        onClick = { navController.navigate(Screen.QuizCustomizer.route) }
+                    )
+                }
+                // Agrega más elementos InicioButton si es necesario
             }
         }
     }
@@ -230,8 +241,8 @@ private fun InicioButton(
             .fillMaxWidth()
             .height(200.dp)
             .padding(16.dp)
-            .shadow(4.dp, RoundedCornerShape(8.dp), clip = false),
-        shape = RoundedCornerShape(8.dp),
+            .shadow(4.dp, RoundedCornerShape(60.dp), clip = false),
+        shape = RoundedCornerShape(60.dp),
         border = BorderStroke(2.dp, SignaDark),
         colors = ButtonDefaults.buttonColors(
             backgroundColor = if (isPressed) SignaBackground else SignaGreen,
