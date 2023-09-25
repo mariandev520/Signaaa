@@ -1,9 +1,11 @@
 package com.xilonet.signa.view
 
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -39,12 +42,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,6 +77,8 @@ fun LoginUI(navController: NavController) {
         contentScale = ContentScale.Crop
     )
 
+
+
     val gradientColors = listOf(
         SignaYellow,
         Color.Transparent // Cambia esto al color de fondo que desees
@@ -83,7 +90,9 @@ fun LoginUI(navController: NavController) {
     ) {
         // Agrega un fondo con el gradiente
         Box(
-            modifier = Modifier.fillMaxSize().background(brush = Brush.verticalGradient(gradientColors)),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(brush = Brush.verticalGradient(gradientColors)),
         )
         // Agrega la imagen de fondo
 
@@ -108,6 +117,41 @@ fun LoginUI(navController: NavController) {
 }
 
 
+@Composable
+fun AnimatedText() {
+    var isTextExpanded by remember { mutableStateOf(false) }
+
+    val text = if (isTextExpanded) {
+        "Aprende a comunicarte Simple"
+    } else {
+        "Aprende a comunicarte"
+    }
+
+    val fontSize = if (isTextExpanded) 30.sp else 20.sp // Cambia el tamaño de fuente en función del estado
+
+    Text(
+        text = text,
+        fontSize = fontSize,
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.Center)
+
+            .padding(vertical = 16.dp) // Agrega espacio vertical si es necesario
+            .background(Color.Transparent, shape = RoundedCornerShape(8.dp))
+            .padding(16.dp)
+            .clickable {
+                isTextExpanded = !isTextExpanded // Cambia el estado en clic
+            }
+            .animateContentSize() // Agrega animación al cambio de tamaño
+            .padding(8.dp), // Añade un padding adicional para mejorar el clic
+        textAlign = TextAlign.Center, // Alinea el texto al centro
+        fontWeight = FontWeight.Bold, // Aplica negritas si lo deseas
+        fontFamily = FontFamily.SansSerif,
+
+
+    )
+}
 
 
 
@@ -194,7 +238,6 @@ private fun LoginFieldsAndButton(goToInicio: () -> Unit) {
         },
         enabled = allowEdit
     )
-
     Spacer(Modifier.height(30.dp))
     LoginScreenGenericButton(
         text = stringResource(R.string.login),
@@ -214,15 +257,19 @@ private fun LoginFieldsAndButton(goToInicio: () -> Unit) {
                 }
             }
         },
-        transparency = 0.5f, // Hace el botón un 50% transparente
+        transparency = 0.2f, // Hace el botón un 50% transparente
         fontSize = 24.sp, // Ajusta el tamaño del texto a 24sp
         buttonSizeModifier = Modifier.fillMaxWidth(0.5f) // Reduce el tamaño del botón al 50%
+
     )
 
 
-
+    Spacer(Modifier.height(30.dp))
     // Continue as guest button
-    Spacer(Modifier.height(222.dp))
+   AnimatedText();
+
+    Spacer(Modifier.height(200.dp))
+
     LoginScreenGenericButton(
         text = stringResource(R.string.continue_as_guest),
         enabled = allowEdit,
@@ -235,6 +282,11 @@ private fun LoginFieldsAndButton(goToInicio: () -> Unit) {
     )
 }
 
+private fun getRandomDescription(): String {
+    // Implementa aquí la lógica para obtener un texto aleatorio
+    return "Texto descriptivo aleatorio"
+}
+
 @Composable
 private fun LoginScreenGenericButton(
     text: String,
@@ -243,9 +295,14 @@ private fun LoginScreenGenericButton(
     guest: Boolean = false,
     fontSize: TextUnit = 20.sp,
     transparency: Float = 0.7f, // Valor para la transparencia (0.0f a 1.0f)
-    buttonSizeModifier: Modifier = Modifier.fillMaxWidth(0.7f), // Modificador de tamaño del botón
-) {
+    buttonSizeModifier: Modifier = Modifier
+        .fillMaxWidth(0.7f)
+        .padding(vertical = 16.dp) // Modificador de tamaño del botón
+)
+{
     val buttonText = if (guest) "Guest" else text // Cambiar el texto si es un botón de invitado
+
+
 
     val buttonColors = if (guest) {
         ButtonDefaults.buttonColors(
@@ -286,6 +343,12 @@ private fun LoginScreenGenericButton(
                 ),
                 fontSize = fontSize
             )
+
+
         }
+
     }
-}
+
+
+    }
+
