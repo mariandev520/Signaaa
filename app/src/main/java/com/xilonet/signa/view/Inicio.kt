@@ -126,6 +126,7 @@ fun DiccionarioUI(context: Context, navController: NavController) {
         painter = painterResource(id = R.drawable.backa),
         contentDescription = null,
         modifier = Modifier
+            .background(Color(0xFFE0E0E0))
             .fillMaxWidth()
             .height(1500.dp)
             .alpha(0.4f)

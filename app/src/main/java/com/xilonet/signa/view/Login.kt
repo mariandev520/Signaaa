@@ -4,7 +4,6 @@ package com.xilonet.signa.view
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -68,21 +66,23 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginUI(navController: NavController) {
-
+/*
     Image(
         painter = painterResource(id = R.drawable.backa), // Reemplaza con el ID de tu imagen de fondo
         contentDescription = null,
         modifier = Modifier
+            .background(Color(0xFFE0E0E0))
             .fillMaxWidth()
             .height(1500.dp), // Ajusta la altura según tus necesidade
         contentScale = ContentScale.Crop
     )
 
-
+*/
 
     val gradientColors = listOf(
-        SignaYellow,
-        Color.Transparent // Cambia esto al color de fondo que desees
+
+    SignaYellow,
+    Color(0xFFE0E0E0)// Cambia esto al color de fondo que desees
     )
 
 

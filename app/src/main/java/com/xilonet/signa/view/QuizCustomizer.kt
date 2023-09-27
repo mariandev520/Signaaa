@@ -46,7 +46,7 @@ fun EarIcons(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-          // Color pastel claro
+            .background(Color(0xFFE0E0E0)) // Color pastel claro
     ) {
         Column(
             modifier = Modifier
