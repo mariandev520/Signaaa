@@ -2,6 +2,7 @@ package com.xilonet.signa.view
 
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -116,9 +117,8 @@ fun LoginUI(navController: NavController) {
 
 }
 
-
 @Composable
-fun AnimatedText() {
+fun AnimatedTextWithFade() {
     var isTextExpanded by remember { mutableStateOf(false) }
 
     val text = if (isTextExpanded) {
@@ -129,14 +129,15 @@ fun AnimatedText() {
 
     val fontSize = if (isTextExpanded) 30.sp else 20.sp // Cambia el tamaño de fuente en función del estado
 
+    val alpha by animateFloatAsState(if (isTextExpanded) 1f else 0.5f)
+
     Text(
         text = text,
         fontSize = fontSize,
-        color = Color.White,
+        color = Color.White.copy(alpha = alpha),
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentSize(Alignment.Center)
-
             .padding(vertical = 16.dp) // Agrega espacio vertical si es necesario
             .background(Color.Transparent, shape = RoundedCornerShape(8.dp))
             .padding(16.dp)
@@ -147,9 +148,7 @@ fun AnimatedText() {
             .padding(8.dp), // Añade un padding adicional para mejorar el clic
         textAlign = TextAlign.Center, // Alinea el texto al centro
         fontWeight = FontWeight.Bold, // Aplica negritas si lo deseas
-        fontFamily = FontFamily.SansSerif,
-
-
+        fontFamily = FontFamily.SansSerif // Cambia la fuente si es necesario
     )
 }
 
@@ -264,22 +263,35 @@ private fun LoginFieldsAndButton(goToInicio: () -> Unit) {
     )
 
 
-    Spacer(Modifier.height(30.dp))
+        Text(
+            text = "Test App", // Cambia el texto aquí
+            fontSize = 25.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (allowEdit) Color.White else Color.White, // Cambia el color según el estado de habilitación
+            modifier = Modifier
+                .padding(16.dp)
+                .clickable(enabled = allowEdit) {
+                    if (allowEdit) {
+                        HTTPUserManager.nullUserInfo()
+                        goToInicio()
+
+                    }
+
+                }
+        )
+
+
+
+
+
+
+    Spacer(Modifier.height(10.dp))
     // Continue as guest button
-   AnimatedText();
 
-    Spacer(Modifier.height(200.dp))
+    AnimatedTextWithFade();
+    Spacer(Modifier.height(110.dp))
 
-    LoginScreenGenericButton(
-        text = stringResource(R.string.continue_as_guest),
-        enabled = allowEdit,
-        onClick = {
-            HTTPUserManager.nullUserInfo()
-            goToInicio()
-        },
-        guest = true,
-        fontSize = 16.sp,
-    )
+
 }
 
 private fun getRandomDescription(): String {
@@ -293,11 +305,13 @@ private fun LoginScreenGenericButton(
     onClick: () -> Unit,
     enabled: Boolean,
     guest: Boolean = false,
-    fontSize: TextUnit = 20.sp,
+    fontSize: TextUnit = 40.sp,
     transparency: Float = 0.7f, // Valor para la transparencia (0.0f a 1.0f)
     buttonSizeModifier: Modifier = Modifier
         .fillMaxWidth(0.7f)
-        .padding(vertical = 16.dp) // Modificador de tamaño del botón
+        .padding(vertical = 20.dp),
+
+        // Modificador de tamaño del botón
 )
 {
     val buttonText = if (guest) "Guest" else text // Cambiar el texto si es un botón de invitado
@@ -307,7 +321,7 @@ private fun LoginScreenGenericButton(
     val buttonColors = if (guest) {
         ButtonDefaults.buttonColors(
             backgroundColor = Color.Transparent, // Fondo blanco para el botón de invitado
-            contentColor = Color.Black // Texto negro para el botón de invitado
+            contentColor = Color.White // Texto negro para el botón de invitado
         )
     } else {
         val defaultColor = SignaLight.copy(alpha = transparency) // Ajusta la transparencia del fondo
