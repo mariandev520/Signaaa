@@ -1,10 +1,16 @@
 package com.xilonet.signa.view
 
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
+import android.speech.RecognizerIntent
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -40,10 +46,13 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,12 +71,12 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -93,12 +102,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 
 // CLASE SUSPENDIDA
 
 @Composable
 fun DiccionarioUI(context: Context, navController: NavController) {
+
+
     val userInfo by remember { mutableStateOf(HTTPUserManager.getUserInfo()) }
 
     val isPortrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
@@ -176,28 +188,44 @@ private fun FullHeader(navController: NavController,
                         .clip(CircleShape)
                         .background(Color.White)
                 )
+               
+                Spacer(modifier = Modifier.height(8.dp)) // Aplicar la escala al espacio
 
-                Spacer(modifier = Modifier.height(8.dp )) // Aplicar la escala al espacio
-                SearchBar(changeCategory, changeQuery)
                 Text(
                     text = "Invitado",
                     style = MaterialTheme.typography.h5,
                     color = Color.White
                 )
             }
+        }
+        var searchQuery by remember { mutableStateOf("") }
+
+        val voiceRecognitionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+                val matches = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                if (!matches.isNullOrEmpty()) {
+                    val recognizedText = matches[0]
+                    // Handle the recognized text as needed
+                    // For example, you can set it in the TextField
+                    searchQuery = recognizedText
+                }
+            }
 
         }
+        SearchBar(changeCategory, changeQuery, voiceRecognitionLauncher, searchQuery)
+        // ...
+
+
+        // ...
     }
 
 
-    Spacer(modifier = Modifier.height(16.dp )) // Aplicar la escala al espacio
+    
 
 
-
-}
-
-
-
+    Spacer(modifier = Modifier.height(16.dp)) // Aplicar la escala al espacio
 
 
 // Agregar el SearchBar debajo de los botones
@@ -205,7 +233,7 @@ private fun FullHeader(navController: NavController,
 // Agregar un botón para navegar a la pantalla de Diccionario si mostrarPantallaDiccionario es falso
 
 
-
+}
 
 
 @Composable
@@ -256,48 +284,76 @@ private fun ButtonSpacer(){
     Spacer(Modifier.width(8.dp))
 }
 
+
+
 @Composable
-private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) -> Unit){
-    var text by remember { mutableStateOf(TextFieldValue("")) }
+private fun SearchBar(
+    changeCategory: (String) -> Unit,
+    changeQuery: (String) -> Unit,
+    voiceRecognitionLauncher: ActivityResultLauncher<Intent>,
+    searchQuery: String
+) {
+    var text by remember { mutableStateOf(searchQuery) }
     val focusManager = LocalFocusManager.current
-    TextField(value = text,
-        onValueChange = {
-            text = it
-            val textString = text.text
-            if(textString != ""){
-                changeCategory("")
-                changeQuery(textString)
-                ClosePreviousVideo()
-                ClosePreviousVideo = {}
-            } else {
-                changeQuery("")
+    val context = LocalContext.current
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth(0.95f)
+    ) {
+        TextField(
+            value = text,
+            onValueChange = {
+                text = it
+                val textString = it
+                if (textString.isNotBlank()) {
+                    changeCategory("")
+                    changeQuery(textString)
+                    ClosePreviousVideo()
+                    ClosePreviousVideo = {}
+                } else {
+                    changeQuery("")
+                }
+                ScrollToTop()
+            },
+            textStyle = MaterialTheme.typography.subtitle1,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            leadingIcon = {
+                Image(
+                    painter = painterResource(R.drawable.ic_baseline_search_24),
+                    contentDescription = null,
+                    modifier = Modifier.height(24.dp),
+                    alpha = 0.5f
+                )
+            },
+            modifier = Modifier
+                .weight(1f)
+                .padding(8.dp),
+        )
+
+        IconButton(
+            onClick = {
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+                    )
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+                }
+                voiceRecognitionLauncher.launch(intent)
             }
-            ScrollToTop()
-        },
-        colors = TextFieldDefaults.textFieldColors(textColor = SignaDark,
-            backgroundColor = SignaLight,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        ),
-        modifier = Modifier
-            .fillMaxWidth(0.95f)
-            .padding(0.dp),
-        shape = RoundedCornerShape(100),
-        textStyle = MaterialTheme.typography.subtitle1,
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-        leadingIcon = {
-            Image(
-                painterResource(R.drawable.ic_baseline_search_24),
-                null,
-                modifier = Modifier.height(24.dp),
-                alpha = 0.5f
+        ) {
+            Icon(
+                imageVector = Icons.Default.Phone,
+                contentDescription = "Reconocimiento de voz",
+                tint = SignaDark
             )
-        },
-    )
+        }
+    }
 }
+
 
 private lateinit var listState : LazyListState
 private lateinit var coroutineScope : CoroutineScope
@@ -553,6 +609,7 @@ private fun UserInfoBanner(
             textAlign = TextAlign.Start,
         )
         Spacer(Modifier.weight(1f))
+
     }
 }
 
