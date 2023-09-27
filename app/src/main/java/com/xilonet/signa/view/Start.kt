@@ -1,7 +1,5 @@
 package com.xilonet.signa.view
 
-
-
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
@@ -29,12 +27,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -49,7 +44,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,7 +57,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -95,11 +88,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
-// CLASE SUSPENDIDA
-
 @Composable
-fun DiccionarioUI(context: Context, navController: NavController) {
+fun DiccionariUI(context: Context, navController: NavController) {
     val userInfo by remember { mutableStateOf(HTTPUserManager.getUserInfo()) }
 
     val isPortrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
@@ -130,17 +120,7 @@ fun DiccionarioUI(context: Context, navController: NavController) {
     var category by remember { mutableStateOf(categoryNames[0]) }
     var searchQuery by remember { mutableStateOf("") }
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        FullHeader(navController,
-            categoryNames, category,
-            { category = it },
-            { searchQuery = it })
-        if (category != "") {
-            VideoGrid(videoFilesManager.getVideosOfCategory(category), context, exoPlayerManager)
-        } else {
-            VideoGrid(videoFilesManager.search(searchQuery), context, exoPlayerManager)
-        }
-    }
+
 
 }
 
@@ -191,19 +171,19 @@ private fun FullHeader(navController: NavController,
     }
 
 
-    Spacer(modifier = Modifier.height(16.dp )) // Aplicar la escala al espacio
+        Spacer(modifier = Modifier.height(16.dp )) // Aplicar la escala al espacio
 
 
 
-}
+            }
 
 
 
 
 
-// Agregar el SearchBar debajo de los botones
+        // Agregar el SearchBar debajo de los botones
 
-// Agregar un botón para navegar a la pantalla de Diccionario si mostrarPantallaDiccionario es falso
+        // Agregar un botón para navegar a la pantalla de Diccionario si mostrarPantallaDiccionario es falso
 
 
 
@@ -214,8 +194,8 @@ private fun ButtonBelt(categoryNames: List<String>, currentCategory: String,
                        changeCategory: (String) -> Unit){
     LazyRow(){
         items(categoryNames) {
-                category -> CategoryButton(category, category == currentCategory,
-            changeCategory)
+            category -> CategoryButton(category, category == currentCategory,
+                            changeCategory)
         }
         item {
             ButtonSpacer()
@@ -236,7 +216,7 @@ private fun CategoryButton(text: String,
                 ClosePreviousVideo()
                 ClosePreviousVideo = {}
                 ScrollToTop()
-            },
+                },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = if(selected) SignaDark else SignaLight
             ),
@@ -263,18 +243,18 @@ private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) ->
     val focusManager = LocalFocusManager.current
     TextField(value = text,
         onValueChange = {
-            text = it
-            val textString = text.text
-            if(textString != ""){
-                changeCategory("")
-                changeQuery(textString)
-                ClosePreviousVideo()
-                ClosePreviousVideo = {}
-            } else {
-                changeQuery("")
-            }
-            ScrollToTop()
-        },
+                            text = it
+                            val textString = text.text
+                            if(textString != ""){
+                                changeCategory("")
+                                changeQuery(textString)
+                                ClosePreviousVideo()
+                                ClosePreviousVideo = {}
+                            } else {
+                                changeQuery("")
+                            }
+                            ScrollToTop()
+                        },
         colors = TextFieldDefaults.textFieldColors(textColor = SignaDark,
             backgroundColor = SignaLight,
             focusedIndicatorColor = Color.Transparent,
@@ -309,31 +289,6 @@ private fun ScrollToTop(){
     }
 }
 
-val SPACE_BETWEEN_VIDEOS = 30.dp
-
-@Composable
-private fun VideoGrid(videosToShow: List<LSMVideo>,
-                      ctxt: Context,
-                      exoPlayerManager: ExoPlayerManager
-) {
-    val offset = with(LocalDensity.current) { -SPACE_BETWEEN_VIDEOS.roundToPx() }
-
-    listState = rememberLazyListState()
-    coroutineScope = rememberCoroutineScope()
-
-    LazyColumn(state = listState){
-        item {
-            Spacer(Modifier.height(SPACE_BETWEEN_VIDEOS))
-        }
-        itemsIndexed(videosToShow){
-                index, video -> VideoButtonRow(video, ctxt, exoPlayerManager) {
-            coroutineScope.launch {
-                listState.animateScrollToItem(index = index+1, scrollOffset = offset)
-            }
-        }
-        }
-    }
-}
 
 @Composable
 private fun VideoButtonRow(video1: LSMVideo,
@@ -438,65 +393,6 @@ private fun VideoPlayer(ctxt: Context, videoPath: String, exoPlayerManager: ExoP
 }
 
 
-@Composable
-fun InicioUIi(navController: NavController) {
-    val userInfo by remember { mutableStateOf(HTTPUserManager.getUserInfo()) }
-
-    val isPortrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
-
-    val scaleFactor =
-        if (isPortrait) 1f else 0.5f // Factor de escala del 50% en orientación horizontal
-
-    Image(
-        painter = painterResource(id = R.drawable.backa),
-        contentDescription = null,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(1500.dp)
-            .alpha(0.4f)
-            .scale(scaleFactor), // Aplicar la escala al fondo
-        contentScale = ContentScale.Crop
-    )
-
-    Column {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(240.dp * scaleFactor) // Aplicar la escala a la altura
-                .background(Color.Transparent)
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.guest_user_profile_pic),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(80.dp * scaleFactor) // Aplicar la escala al tamaño de la imagen
-                        .clip(CircleShape)
-                        .background(Color.White)
-                )
-                Spacer(modifier = Modifier.height(8.dp * scaleFactor)) // Aplicar la escala al espacio
-                Text(
-                    text = userInfo?.firstName ?: "Invitado",
-                    style = MaterialTheme.typography.h5,
-                    color = Color.White
-                )
-            }
-        }
-
-
-        Spacer(modifier = Modifier.height(16.dp * scaleFactor)) // Aplicar la escala al espacio
-
-
-    }
-
-
-}
 
 
 

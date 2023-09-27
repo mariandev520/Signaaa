@@ -3,10 +3,15 @@ package com.xilonet.signa.controller
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.navigation.*
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.xilonet.signa.view.*
+import androidx.navigation.navArgument
+import com.xilonet.signa.view.DiccionarioUI
+import com.xilonet.signa.view.LoginUI
+import com.xilonet.signa.view.QuizCustomizerUI
+import com.xilonet.signa.view.QuizUI
 
 @Composable
 fun SetupNavGraph(
@@ -24,11 +29,6 @@ fun SetupNavGraph(
         }
         composable(
             route = Screen.Inicio.route
-        ) {
-            InicioUI(navController)
-        }
-        composable(
-            route = Screen.Diccionario.route
         ) {
             DiccionarioUI(context, navController)
         }
