@@ -1,5 +1,6 @@
 package com.xilonet.signa.view
 
+
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
@@ -171,19 +172,19 @@ private fun FullHeader(navController: NavController,
     }
 
 
-        Spacer(modifier = Modifier.height(16.dp )) // Aplicar la escala al espacio
+    Spacer(modifier = Modifier.height(16.dp )) // Aplicar la escala al espacio
 
 
 
-            }
+}
 
 
 
 
 
-        // Agregar el SearchBar debajo de los botones
+// Agregar el SearchBar debajo de los botones
 
-        // Agregar un botón para navegar a la pantalla de Diccionario si mostrarPantallaDiccionario es falso
+// Agregar un botón para navegar a la pantalla de Diccionario si mostrarPantallaDiccionario es falso
 
 
 
@@ -194,8 +195,8 @@ private fun ButtonBelt(categoryNames: List<String>, currentCategory: String,
                        changeCategory: (String) -> Unit){
     LazyRow(){
         items(categoryNames) {
-            category -> CategoryButton(category, category == currentCategory,
-                            changeCategory)
+                category -> CategoryButton(category, category == currentCategory,
+            changeCategory)
         }
         item {
             ButtonSpacer()
@@ -216,7 +217,7 @@ private fun CategoryButton(text: String,
                 ClosePreviousVideo()
                 ClosePreviousVideo = {}
                 ScrollToTop()
-                },
+            },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = if(selected) SignaDark else SignaLight
             ),
@@ -243,18 +244,18 @@ private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) ->
     val focusManager = LocalFocusManager.current
     TextField(value = text,
         onValueChange = {
-                            text = it
-                            val textString = text.text
-                            if(textString != ""){
-                                changeCategory("")
-                                changeQuery(textString)
-                                ClosePreviousVideo()
-                                ClosePreviousVideo = {}
-                            } else {
-                                changeQuery("")
-                            }
-                            ScrollToTop()
-                        },
+            text = it
+            val textString = text.text
+            if(textString != ""){
+                changeCategory("")
+                changeQuery(textString)
+                ClosePreviousVideo()
+                ClosePreviousVideo = {}
+            } else {
+                changeQuery("")
+            }
+            ScrollToTop()
+        },
         colors = TextFieldDefaults.textFieldColors(textColor = SignaDark,
             backgroundColor = SignaLight,
             focusedIndicatorColor = Color.Transparent,

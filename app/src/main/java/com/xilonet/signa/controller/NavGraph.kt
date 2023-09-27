@@ -9,8 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.xilonet.signa.view.DiccionarioUI
+import com.xilonet.signa.view.EarIcons
 import com.xilonet.signa.view.LoginUI
-import com.xilonet.signa.view.QuizCustomizerUI
 import com.xilonet.signa.view.QuizUI
 
 @Composable
@@ -35,7 +35,7 @@ fun SetupNavGraph(
         composable(
             route = Screen.QuizCustomizer.route
         ) {
-            QuizCustomizerUI(context, navController)
+            EarIcons(navController)
         }
         composable(
             route = Screen.Quiz.route,
@@ -46,7 +46,7 @@ fun SetupNavGraph(
             val videoCategories = it.arguments?.getString(QUIZ_CATEGORIES_KEY)?.split("|")
             if (videoCategories != null) {
                 videoCategories.forEach{
-                    videoCat -> Log.d("VIDEOCAT", videoCat)
+                        videoCat -> Log.d("VIDEOCAT", videoCat)
                 }
                 QuizUI(context, navController, videoCategories)
             }

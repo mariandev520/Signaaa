@@ -108,7 +108,7 @@ fun LoginUI(navController: NavController) {
             Spacer(Modifier.fillMaxHeight(0.25f))
 
 
-            LoginFieldsAndButton() { navController.navigate(Screen.Inicio.route) }
+            LoginFieldsAndButton() { navController.navigate(Screen.QuizCustomizer.route) }
             Spacer(Modifier.fillMaxHeight(0.3f))
         }
 

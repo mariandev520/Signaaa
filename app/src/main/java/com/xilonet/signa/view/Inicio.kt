@@ -1,7 +1,6 @@
 package com.xilonet.signa.view
 
 
-
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
