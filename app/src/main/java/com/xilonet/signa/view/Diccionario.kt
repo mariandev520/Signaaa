@@ -62,6 +62,22 @@ fun DiccionarioUI(context: Context, navController: NavController){
             categoryNames, category,
             { category = it },
             { searchQuery = it})
+        Card {
+            Text(text = "Frase Hecha",
+                modifier = Modifier
+                    .padding(10.dp)
+                    .height(60.dp),
+                )
+            Button(
+                onClick = { /*TODO*/ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(80.dp),
+            ) {
+                Text(text = "Traducir")
+            }
+        }
+
         if(category != ""){
             VideoGrid(videoFilesManager.getVideosOfCategory(category), context, exoPlayerManager)
         } else {
@@ -241,8 +257,6 @@ private fun VideoButtonRow(video1: LSMVideo,
     }
 }
 
-// We close the composable of the previous video (we must have only one at a time)
-// We'll put the content inside brackets when we create the video we'll later close
 private var ClosePreviousVideo = {}
 
 @Composable
@@ -293,13 +307,16 @@ private fun ImageOrVideoPlayer(ctxt: Context, path: String, exoPlayerManager: Ex
 
 @Composable
 private fun ImagePlayer(ctxt: Context, imagePath: String){
-    Box(modifier = Modifier.clip(RoundedCornerShape(16.dp))
+    Box(modifier = Modifier
+        .clip(RoundedCornerShape(16.dp))
         .border(width = 2.dp, color = SignaDark, shape = RoundedCornerShape(16.dp))
     ){
         Image(
             BitmapFactory.decodeStream(ctxt.assets.open(imagePath)).asImageBitmap(),
             null,
-            modifier = Modifier.aspectRatio(1.35f).clip(RoundedCornerShape(16.dp))
+            modifier = Modifier
+                .aspectRatio(1.35f)
+                .clip(RoundedCornerShape(16.dp))
         )
     }
 }
@@ -308,7 +325,8 @@ private fun ImagePlayer(ctxt: Context, imagePath: String){
 private fun VideoPlayer(ctxt: Context, videoPath: String, exoPlayerManager: ExoPlayerManager){
     val exoPlayer = remember(ctxt) { exoPlayerManager.getExoPlayer(videoPath) }
 
-    Box(modifier = Modifier.clip(RoundedCornerShape(16.dp))
+    Box(modifier = Modifier
+        .clip(RoundedCornerShape(16.dp))
         .border(width = 2.dp, color = SignaDark, shape = RoundedCornerShape(16.dp))
     ){
         // Implementing ExoPlayer
@@ -318,7 +336,9 @@ private fun VideoPlayer(ctxt: Context, videoPath: String, exoPlayerManager: ExoP
                 useController = false
                 resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
             }},
-            modifier = Modifier.aspectRatio(1.35f).clip(RoundedCornerShape(16.dp))
+            modifier = Modifier
+                .aspectRatio(1.35f)
+                .clip(RoundedCornerShape(16.dp))
         )
     }
 }
