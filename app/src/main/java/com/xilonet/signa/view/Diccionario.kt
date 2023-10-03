@@ -62,6 +62,23 @@ fun DiccionarioUI(context: Context, navController: NavController){
             categoryNames, category,
             { category = it },
             { searchQuery = it})
+
+        Card {
+            Text(text = "Frase Hecha",
+                modifier = Modifier
+                    .padding(10.dp)
+                    .height(60.dp),
+            )
+            Button(
+                onClick = { /*TODO*/ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(80.dp),
+            ) {
+                Text(text = "Traducir")
+            }
+        }
+
         if(category != ""){
             VideoGrid(videoFilesManager.getVideosOfCategory(category), context, exoPlayerManager)
         } else {
