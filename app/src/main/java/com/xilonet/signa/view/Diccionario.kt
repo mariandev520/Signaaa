@@ -63,21 +63,7 @@ fun DiccionarioUI(context: Context, navController: NavController){
             { category = it },
             { searchQuery = it})
 
-        Card {
-            Text(text = "Frase Hecha",
-                modifier = Modifier
-                    .padding(10.dp)
-                    .height(60.dp),
-            )
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(80.dp),
-            ) {
-                Text(text = "Traducir")
-            }
-        }
+
 
         if(category != ""){
             VideoGrid(videoFilesManager.getVideosOfCategory(category), context, exoPlayerManager)
@@ -169,11 +155,14 @@ private fun ButtonSpacer(){
 @Composable
 private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) -> Unit){
     var text by remember { mutableStateOf(TextFieldValue("")) }
+    var searchQueryText by remember { mutableStateOf("") }
+
     val focusManager = LocalFocusManager.current
     TextField(value = text,
         onValueChange = {
                             text = it
                             val textString = text.text
+                            searchQueryText = textString
                             if(textString != ""){
                                 changeCategory("")
                                 changeQuery(textString)
@@ -207,6 +196,26 @@ private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) ->
             )
         },
     )
+    Card {
+        Text(
+            text = if (searchQueryText.isNotEmpty()) {
+                "Frase Hecha: $searchQueryText"  // Muestra el texto ingresado si no está vacío
+            } else {
+                "Frase a traducir"
+            },
+            modifier = Modifier
+                .padding(10.dp)
+                .height(60.dp),
+        )
+        Button(
+            onClick = { /* Tu lógica de traducción aquí */ },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(80.dp)
+        ) {
+            Text(text = "Traducir")
+        }
+    }
 }
 
 private lateinit var listState : LazyListState
