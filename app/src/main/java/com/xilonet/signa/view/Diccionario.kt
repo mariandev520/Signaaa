@@ -63,8 +63,6 @@ fun DiccionarioUI(context: Context, navController: NavController){
             { category = it },
             { searchQuery = it})
 
-
-
         if(category != ""){
             VideoGrid(videoFilesManager.getVideosOfCategory(category), context, exoPlayerManager)
         } else {
@@ -199,7 +197,7 @@ private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) ->
     Card {
         Text(
             text = if (searchQueryText.isNotEmpty()) {
-                "Frase Hecha: $searchQueryText"  // Muestra el texto ingresado si no está vacío
+                "Frase Hecha: $searchQueryText"
             } else {
                 "Frase a traducir"
             },
@@ -208,7 +206,7 @@ private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) ->
                 .height(60.dp),
         )
         Button(
-            onClick = { /* Tu lógica de traducción aquí */ },
+            onClick = { /* Traducción */ },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(80.dp)
