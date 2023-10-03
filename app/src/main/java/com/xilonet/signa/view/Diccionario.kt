@@ -197,7 +197,7 @@ private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) ->
     Card {
         Text(
             text = if (searchQueryText.isNotEmpty()) {
-                "Frase Hecha: $searchQueryText"
+                "Frase Hecha: $searchQueryText" // Agarrar el contenido de searchQueryText, Meterlo en un Array y segmentarlo en strings para compararlos con los titulos de los videos.
             } else {
                 "Frase a traducir"
             },
