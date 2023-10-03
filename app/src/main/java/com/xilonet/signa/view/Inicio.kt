@@ -91,6 +91,7 @@ private fun FullHeader(userInfo: UserInfo?){
     }
 }
 
+
 @Composable
 private fun UserInfoBanner(
     nameToDisplay: String = stringResource(R.string.guest),
@@ -152,7 +153,7 @@ private fun BackgroundGraphicWithLogo(size: Dp = 128.dp,
                                       icon: Painter,
                                       bgColor: Color
 ){
-    Box(){
+    Box{
         Image(
             painterResource(R.drawable.background_pentagon),
             null,
