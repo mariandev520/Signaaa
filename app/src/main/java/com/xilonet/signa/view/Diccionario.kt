@@ -154,6 +154,7 @@ private fun ButtonSpacer(){
 private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) -> Unit){
     var text by remember { mutableStateOf(TextFieldValue("")) }
     var searchQueryText by remember { mutableStateOf("") }
+    val searchQueryArray = searchQueryText.split(" ")
 
     val focusManager = LocalFocusManager.current
     TextField(value = text,
@@ -197,7 +198,7 @@ private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) ->
     Card {
         Text(
             text = if (searchQueryText.isNotEmpty()) {
-                "Frase Hecha: $searchQueryText" // Agarrar el contenido de searchQueryText, Meterlo en un Array y segmentarlo en strings para compararlos con los titulos de los videos.
+                "Frase Hecha: $searchQueryText" // Agarrar el contenido de searchQueryText, Meterlos en un Array y segmentarlos en strings para compararlos con los titulos de los videos.
             } else {
                 "Frase a traducir"
             },
@@ -206,7 +207,8 @@ private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) ->
                 .height(60.dp),
         )
         Button(
-            onClick = { /* Traducción */ },
+            onClick = {
+                println(searchQueryArray) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(80.dp)
