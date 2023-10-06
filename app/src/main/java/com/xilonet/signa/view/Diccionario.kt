@@ -1,8 +1,11 @@
 package com.xilonet.signa.view
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -21,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -31,6 +35,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -53,6 +58,7 @@ fun DiccionarioUI(context: Context, navController: NavController){
     val videoFilesManager = VideoFilesManager(context)
     val exoPlayerManager = ExoPlayerManager(context)
     val categoryNames = videoFilesManager.getCategoryNames()
+
 
     var category by remember {mutableStateOf(categoryNames[0])}
     var searchQuery by remember {mutableStateOf("")}
@@ -86,7 +92,7 @@ private fun FullHeader(navController: NavController,
             .fillMaxWidth()
             .background(SignaGreen)
     ) {
-        Box() {
+        Box{
             HeaderTitle(stringResource(R.string.diccionario))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically) {
@@ -105,7 +111,7 @@ private fun FullHeader(navController: NavController,
 @Composable
 private fun ButtonBelt(categoryNames: List<String>, currentCategory: String,
                        changeCategory: (String) -> Unit){
-    LazyRow(){
+    LazyRow {
         items(categoryNames) {
             category -> CategoryButton(category, category == currentCategory,
                             changeCategory)
@@ -121,7 +127,7 @@ private fun CategoryButton(text: String,
                            selected: Boolean = false,
                            changeCategory: (String) -> Unit
 ){
-    Row(){
+    Row {
         ButtonSpacer()
         Button(
             onClick = {
@@ -154,7 +160,10 @@ private fun ButtonSpacer(){
 private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) -> Unit){
     var text by remember { mutableStateOf(TextFieldValue("")) }
     var searchQueryText by remember { mutableStateOf("") }
-    val searchQueryArray = searchQueryText.split(" ")
+    val context = LocalContext.current
+    var videoVisible by remember { mutableStateOf(false) }
+    val exoPlayerManager = remember { ExoPlayerManager(context) }
+
 
     val focusManager = LocalFocusManager.current
     TextField(value = text,
@@ -206,16 +215,37 @@ private fun SearchBar(changeCategory: (String) -> Unit, changeQuery: (String) ->
                 .padding(10.dp)
                 .height(60.dp),
         )
+
         Button(
             onClick = {
-                println(searchQueryArray) },
+                videoVisible = !videoVisible
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(80.dp)
         ) {
             Text(text = "Traducir")
         }
+
+        AnimatedVisibility(visible = videoVisible) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(text = "Video a mostrar")
+
+                    VideoPlayer(context, videoPath = "lsm/Saludos/Hola.m4v", exoPlayerManager)
+            }
+        }
     }
+}
+
 }
 
 private lateinit var listState : LazyListState
@@ -313,19 +343,22 @@ private fun ImageOrVideoPlayer(ctxt: Context, path: String, exoPlayerManager: Ex
     if(path.substring(path.length-3).lowercase() == "jpg"){
         ImagePlayer(ctxt, path)
     } else {
-        VideoPlayer(ctxt, path, exoPlayerManager)
+        VideoPlayer(ctxt, videoPath = path, exoPlayerManager)
     }
 }
 
 @Composable
 private fun ImagePlayer(ctxt: Context, imagePath: String){
-    Box(modifier = Modifier.clip(RoundedCornerShape(16.dp))
+    Box(modifier = Modifier
+        .clip(RoundedCornerShape(16.dp))
         .border(width = 2.dp, color = SignaDark, shape = RoundedCornerShape(16.dp))
     ){
         Image(
             BitmapFactory.decodeStream(ctxt.assets.open(imagePath)).asImageBitmap(),
             null,
-            modifier = Modifier.aspectRatio(1.35f).clip(RoundedCornerShape(16.dp))
+            modifier = Modifier
+                .aspectRatio(1.35f)
+                .clip(RoundedCornerShape(16.dp))
         )
     }
 }
@@ -334,7 +367,8 @@ private fun ImagePlayer(ctxt: Context, imagePath: String){
 private fun VideoPlayer(ctxt: Context, videoPath: String, exoPlayerManager: ExoPlayerManager){
     val exoPlayer = remember(ctxt) { exoPlayerManager.getExoPlayer(videoPath) }
 
-    Box(modifier = Modifier.clip(RoundedCornerShape(16.dp))
+    Box(modifier = Modifier
+        .clip(RoundedCornerShape(16.dp))
         .border(width = 2.dp, color = SignaDark, shape = RoundedCornerShape(16.dp))
     ){
         // Implementing ExoPlayer
@@ -344,7 +378,9 @@ private fun VideoPlayer(ctxt: Context, videoPath: String, exoPlayerManager: ExoP
                 useController = false
                 resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
             }},
-            modifier = Modifier.aspectRatio(1.35f).clip(RoundedCornerShape(16.dp))
+            modifier = Modifier
+                .aspectRatio(1.35f)
+                .clip(RoundedCornerShape(16.dp))
         )
     }
 }
