@@ -30,7 +30,7 @@ fun SetupNavGraph(
         composable(
             route = Screen.Diccionario.route
         ) {
-            DiccionarioUI(context, navController)
+            DiccionarioUI(context, navController, onCloseClick = {})
         }
         composable(
             route = Screen.QuizCustomizer.route
