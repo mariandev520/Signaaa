@@ -4,6 +4,7 @@ package com.xilonet.signa.view
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
+import android.provider.MediaStore
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -63,15 +64,19 @@ import androidx.navigation.NavController
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.xilonet.signa.R
+
 import com.xilonet.signa.model.HTTPUserManager
-import com.xilonet.signa.model.LSMVideo
+
 import com.xilonet.signa.model.VideoFilesManager
 import com.xilonet.signa.model.android.ExoPlayerManager
+
 import com.xilonet.signa.view.theme.SignaDark
 import com.xilonet.signa.view.theme.SignaLight
 import com.xilonet.signa.view.theme.SignaYellow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.io.File
+import java.util.Vector
 
 @Composable
 fun DiccionariUI(context: Context, navController: NavController) {
@@ -163,12 +168,6 @@ private fun FullHeader(navController: NavController,
 }
 
 
-
-
-
-// Agregar el SearchBar debajo de los botones
-
-// Agregar un botón para navegar a la pantalla de Diccionario si mostrarPantallaDiccionario es falso
 
 
 
@@ -276,7 +275,7 @@ private fun ScrollToTop(){
 
 
 @Composable
-private fun VideoButtonRow(video1: LSMVideo,
+private fun VideoButtonRow(video1: VideoFilesManager.LSMVideo,
                            ctxt: Context,
                            exoPlayerManager: ExoPlayerManager,
                            scrollToMe: () -> Unit
@@ -385,9 +384,9 @@ private fun VideoPlayer(ctxt: Context, videoPath: String, exoPlayerManager: ExoP
 private fun UserInfoBanner(
     nameToDisplay: String = stringResource(R.string.guest),
     profilePic: Painter = painterResource(R.drawable.guest_user_profile_pic)
-){
+) {
     Button(
-        onClick = {/* TODO: Se podría mostrar un drop-down con más información del usuario */},
+        onClick = {/* TODO: Se podría mostrar un drop-down con más información del usuario */ },
         colors = ButtonDefaults.buttonColors(SignaLight),
         modifier = Modifier
             .fillMaxWidth(0.9f)

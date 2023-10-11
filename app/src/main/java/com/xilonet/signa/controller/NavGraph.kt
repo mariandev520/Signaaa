@@ -12,6 +12,7 @@ import com.xilonet.signa.view.DiccionarioUI
 import com.xilonet.signa.view.EarIcons
 import com.xilonet.signa.view.LoginUI
 import com.xilonet.signa.view.QuizUI
+import com.xilonet.signa.view.TuizCustomizerUI
 
 @Composable
 fun SetupNavGraph(
@@ -36,6 +37,11 @@ fun SetupNavGraph(
             route = Screen.QuizCustomizer.route
         ) {
             EarIcons(navController)
+        }
+        composable(
+            route = Screen.TuizCustomizer.route
+        ) {
+            TuizCustomizerUI(context, navController)
         }
         composable(
             route = Screen.Quiz.route,

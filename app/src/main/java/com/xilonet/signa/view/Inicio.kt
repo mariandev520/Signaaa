@@ -55,6 +55,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -88,7 +89,6 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.xilonet.signa.R
 import com.xilonet.signa.model.HTTPUserManager
-import com.xilonet.signa.model.LSMVideo
 import com.xilonet.signa.model.UserInfo
 import com.xilonet.signa.model.VideoFilesManager
 import com.xilonet.signa.model.android.ExoPlayerManager
@@ -139,16 +139,16 @@ fun DiccionarioUI(context: Context, navController: NavController) {
     val exoPlayerManager = ExoPlayerManager(context)
     val categoryNames = videoFilesManager.getCategoryNames()
 
-    var category by remember { mutableStateOf(categoryNames[0]) }
+    var name by remember { mutableStateOf(categoryNames[0]) }
     var searchQuery by remember { mutableStateOf("") }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         FullHeader(navController,
-            categoryNames, category,
-            { category = it },
+            categoryNames, name,
+            { name = it },
             { searchQuery = it })
-        if (category != "") {
-            VideoGrid(videoFilesManager.getVideosOfCategory(category), context, exoPlayerManager)
+        if (name != "") {
+            VideoGrid(videoFilesManager.search(name), context, exoPlayerManager)
         } else {
             VideoGrid(videoFilesManager.search(searchQuery), context, exoPlayerManager)
         }
@@ -189,7 +189,7 @@ private fun FullHeader(navController: NavController,
                         .clip(CircleShape)
                         .background(Color.White)
                 )
-               
+
                 Spacer(modifier = Modifier.height(8.dp)) // Aplicar la escala al espacio
 
                 Text(
@@ -216,6 +216,7 @@ private fun FullHeader(navController: NavController,
 
         }
         SearchBar(changeCategory, changeQuery, voiceRecognitionLauncher, searchQuery)
+
         // ...
 
 
@@ -223,7 +224,7 @@ private fun FullHeader(navController: NavController,
     }
 
 
-    
+
 
 
     Spacer(modifier = Modifier.height(16.dp)) // Aplicar la escala al espacio
@@ -368,7 +369,7 @@ private fun ScrollToTop(){
 val SPACE_BETWEEN_VIDEOS = 30.dp
 
 @Composable
-private fun VideoGrid(videosToShow: List<LSMVideo>,
+private fun VideoGrid(videosToShow: List<VideoFilesManager.LSMVideo>,
                       ctxt: Context,
                       exoPlayerManager: ExoPlayerManager
 ) {
@@ -392,7 +393,7 @@ private fun VideoGrid(videosToShow: List<LSMVideo>,
 }
 
 @Composable
-private fun VideoButtonRow(video1: LSMVideo,
+private fun VideoButtonRow(video1: VideoFilesManager.LSMVideo,
                            ctxt: Context,
                            exoPlayerManager: ExoPlayerManager,
                            scrollToMe: () -> Unit

@@ -3,6 +3,7 @@ package com.xilonet.signa.view
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
@@ -10,18 +11,23 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.ButtonDefaults.elevation
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Rect
+
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -29,14 +35,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+
 import androidx.navigation.NavController
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.ui.TimeBar
+
 import com.xilonet.signa.R
 import com.xilonet.signa.model.HTTPUserManager
 import com.xilonet.signa.model.QuizVideoRandomSelector
@@ -54,51 +63,108 @@ enum class ScreenMode {
 
 private lateinit var coroutineScope: CoroutineScope
 
+
+
+
 @Composable
 fun QuizUI(context: Context, navController: NavController, categories: List<String>) {
     coroutineScope = rememberCoroutineScope()
-    val exoPlayerManager by remember {mutableStateOf(ExoPlayerManager(context))}
-    val randomSelector by remember {mutableStateOf(QuizVideoRandomSelector(context, categories))}
-    var videoAndOptions by remember{mutableStateOf(randomSelector.getNextVideoAndOptions())}
-    var timerFillPortion by remember{mutableStateOf(1.0f)}
-    var screenMode by remember {mutableStateOf(ScreenMode.PLAY)}
-    var heartsLeft by remember {mutableStateOf(5)}
-    var score by remember {mutableStateOf(0)}
-    var thisQuestionPoints by remember {mutableStateOf(0)}
+    val exoPlayerManager by remember { mutableStateOf(ExoPlayerManager(context)) }
+    val randomSelector by remember { mutableStateOf(QuizVideoRandomSelector(context, categories)) }
+    var videoAndOptions by remember { mutableStateOf(randomSelector.getNextVideoAndOptions()) }
+    var timerFillPortion by remember { mutableStateOf(1.0f) }
+    var screenMode by remember { mutableStateOf(ScreenMode.PLAY) }
+    var heartsLeft by remember { mutableStateOf(5) }
+    var score by remember { mutableStateOf(0) }
+    var thisQuestionPoints by remember { mutableStateOf(0) }
+    var query by remember { mutableStateOf("") }
 
-    var currentTimer: CountDownTimer? by remember{mutableStateOf(null)}
-    if(currentTimer == null && screenMode == ScreenMode.PLAY){
-        currentTimer = StartTimer(changeFillPortion =   {it ->
-                                                            timerFillPortion = it
-                                                            thisQuestionPoints = (100 * it).toInt()
-                                                        },
-                    onTimeout = {screenMode = ScreenMode.TIME_OUT
-                                 heartsLeft--
-                                }
+    var currentTimer: CountDownTimer? by remember { mutableStateOf(null) }
+    if (currentTimer == null && screenMode == ScreenMode.PLAY) {
+        currentTimer = StartTimer(changeFillPortion = { it ->
+            timerFillPortion = it
+            thisQuestionPoints = (100 * it).toInt()
+        },
+            onTimeout = {
+                screenMode = ScreenMode.TIME_OUT
+                heartsLeft--
+            }
         )
+
+
+
+        Column(
+            horizontalAlignment = CenterHorizontally,
+            modifier = Modifier.background(
+                if (screenMode == ScreenMode.PLAY) SignaBackground else SignaDark
+            )
+        ) {
+
+            if (screenMode == ScreenMode.PLAY) {
+                Spacer(Modifier.height(10.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TimeBar(timerFillPortion)
+                    Spacer(Modifier.width(10.dp))
+                    HeartsLeft(heartsLeft)
+                }
+                Spacer(Modifier.height(10.dp))
+                // Aquí agregamos la barra de búsqueda
+                SearchBar(
+                    query = query,
+                    onQueryChanged = { query = it }, // Actualizamos la variable con el nuevo texto
+                    onSearchClicked = {
+                        // Aquí hacemos un foreach en la lista de categorías
+                        categories.forEach { category ->
+                            // Aquí comparamos el texto de búsqueda con el nombre de la categoría, ignorando las mayúsculas y minúsculas
+                            if (query.equals(category, ignoreCase = true)) {
+                                // Aquí mostramos la alerta que dice "es igual"
+                                var showAlert =
+                                    true // Cambiamos la variable a true para mostrar la alerta
+                            }
+                        }
+                    }
+                )
+                // Aquí agregamos la lista filtrada por el texto de búsqueda
+                val filteredCategories = categories.filter {
+                    it.contains(
+                        query,
+                        ignoreCase = true
+                    )
+                } // Esta es la lista filtrada por el texto de búsqueda
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(filteredCategories) { category ->
+                        Text(
+                            category,
+                            modifier = Modifier.padding(16.dp)
+                        ) // Aquí puedes mostrar cada categoría como quieras
+                    }
+                }
+                // Aquí agregamos el componente de alerta si la variable es true
+                val showAlert = false
+                if (showAlert) {
+                    EqualAlert(
+                        onConfirm = {
+                            var showAlert = false
+                        }, // Al confirmar, cambiamos la variable a false para ocultar la alerta
+                        onCancel = {
+                            var showAlert = false
+                        } // Al cancelar, también cambiamos la variable a false para ocultar la alerta
+                    )
+
+                }
+            }
+        }
     }
 
 
-    if(heartsLeft < 0) screenMode = ScreenMode.GAME_OVER
-    if(videoAndOptions == null) screenMode = ScreenMode.ALL_FINISHED
+            // ...
 
 
-    Column(
-        horizontalAlignment = CenterHorizontally,
-        modifier = Modifier.background(
-            if(screenMode == ScreenMode.PLAY) SignaBackground else SignaDark
-        )
-    ) {
-        FullHeader(navController, score)
-        if(screenMode == ScreenMode.PLAY){
-            Spacer(Modifier.height(10.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TimeBar(timerFillPortion)
-                Spacer(Modifier.width(10.dp))
-                HeartsLeft(heartsLeft)
-            }
-            Spacer(Modifier.height(10.dp))
-        }
+
+
+
+
+
 
         when (screenMode) {
             ScreenMode.PLAY -> {
@@ -180,32 +246,90 @@ fun QuizUI(context: Context, navController: NavController, categories: List<Stri
             }
         }
     }
-}
 
 @Composable
-private fun FullHeader(navController: NavController, points: Int){
-    Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .requiredHeight(120.dp)
-            .fillMaxWidth()
-            .background(SignaGreen)
-    ) {
-        Box() {
-            HeaderTitle(stringResource(R.string.quiz))
-            Row(
-                Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically) {
-                Spacer(Modifier.width(10.dp))
-                BackButton(navController)
+fun EqualAlert(
+    modifier: Modifier = Modifier,
+    onConfirm: () -> Unit = {},
+    onCancel: () -> Unit = {}
+) {
+    AlertDialog(
+        onDismissRequest = onCancel,
+        title = { Text("Es igual") },
+        text = { Text("El texto de búsqueda es igual al nombre de la categoría") },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text("Aceptar")
             }
-        }
-        Spacer(Modifier.height(8.dp))
-        ScoreBanner(score = points)
-    }
+        },
+        dismissButton = {
+            Button(onClick = onCancel) {
+                Text("Cancelar")
+            }
+        },
+        modifier = modifier
+    )
 }
 
+
+@Composable
+fun SearchBar(
+    modifier: Modifier = Modifier,
+    query: String = "",
+    onQueryChanged: (String) -> Unit = {},
+    onSearchClicked: () -> Unit = {}
+) {
+    TextField(
+        value = query,
+        onValueChange = onQueryChanged,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        label = { Text("Buscar") },
+        placeholder = { Text("Escribe algo...") },
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(onSearch = { onSearchClicked() }),
+        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Icono de búsqueda") },
+        trailingIcon = { Button(onClick = { onSearchClicked() }) { Text("Buscar") } }, // Aquí agregamos el botón de búsqueda
+        singleLine = true,
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = Color.White,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+
+        )
+
+    )
+
+
+
+
+
+    @Composable
+    fun FullHeader(navController: NavController, points: Int) {
+        Column(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .requiredHeight(120.dp)
+                .fillMaxWidth()
+                .background(SignaGreen)
+        ) {
+            Box() {
+                HeaderTitle(stringResource(R.string.quiz))
+                Row(
+                    Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(Modifier.width(10.dp))
+                    BackButton(navController)
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            ScoreBanner(score = points)
+        }
+    }
+}
 @Composable
 private fun ScoreBanner(profilePic: Painter = painterResource(R.drawable.guest_user_profile_pic),
                         score: Int = 0

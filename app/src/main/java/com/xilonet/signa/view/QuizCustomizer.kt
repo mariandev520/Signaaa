@@ -63,13 +63,14 @@ fun EarIcons(navController: NavController) {
                     navController.navigate(Screen.Inicio.route)
                 }
             )
-                EarIcon(
-                    icon = Icons.Default.Star,
-                    color = Color(0xFF80CBC4), // Color pastel claro
-                    contentDescription = "Ear Icon"
-                )
+            EarIcon(
+                icon = Icons.Default.Star,
+                color = Color(0xFF80CBC4), // Color pastel claro
+                contentDescription = "Ear Icon"
+            )
 
             Spacer(Modifier.padding(15.dp))
+
 
             // Otro icono (sin navegación)
             EarIcon(
@@ -77,9 +78,26 @@ fun EarIcons(navController: NavController) {
                 color = Color(0xFFFFCC80), // Color pastel claro
                 contentDescription = "Blocked Ear Icon"
             )
-        }
-    }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
 
+                )
+
+            {
+                ClickableText(
+                    text = AnnotatedString("aqui "),
+                    onClick = { offset ->
+                        // Navegar a la ubicación deseada cuando se hace clic en el icono de la estrella
+                        navController.navigate(Screen.Quiz.route)
+
+                    }
+                )
+            }
+        }
+
+    }
 }
 
 @Composable

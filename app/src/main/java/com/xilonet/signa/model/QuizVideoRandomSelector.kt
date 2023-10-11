@@ -7,11 +7,11 @@ import kotlin.random.Random.Default.nextInt
 // Básicamente es el Back-end del Quiz/Juego. Se encarga de administrar y entregar los videos y
 // opciones que salen.
 class QuizVideoRandomSelector(context: Context, categories: List<String>) {
-    private val videos = Vector<LSMVideo>()
+    private val videos = Vector<VideoFilesManager.LSMVideo>()
     private val videoFilesManager = VideoFilesManager(context)
     init {
         categories.forEach{
-            videos.addAll(videoFilesManager.getVideosOfCategory(it))
+            videos.addAll(videoFilesManager.getSimilarVideos(it))
         }
         videos.shuffle()
     }

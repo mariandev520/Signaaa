@@ -7,6 +7,8 @@ sealed class Screen(val route: String) {
     object Inicio: Screen(route = "inicio_screen")
     object Diccionario: Screen(route = "diccionario_screen")
     object QuizCustomizer: Screen(route = "quiz_customizer_screen")
+
+    object TuizCustomizer: Screen(route = "tuiz_customizer_screen")
     object Quiz: Screen(route = "quiz_screen/{$QUIZ_CATEGORIES_KEY}") {
         fun passPipeSeparatedCategories(categories: String): String{
             return this.route.replace(oldValue = "{$QUIZ_CATEGORIES_KEY}", newValue = categories)
