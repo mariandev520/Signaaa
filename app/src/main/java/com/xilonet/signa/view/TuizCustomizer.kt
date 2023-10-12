@@ -36,6 +36,7 @@ val SIDE_PADDING = 20.dp
 
 @Composable
 fun TuizCustomizerUI(context: Context, navController: NavController){
+    var videos: List<VideoFilesManager.LSMVideo> = emptyList()
     val videoCategories = VideoFilesManager(context).getCategoryNames()
     val userInfo = HTTPUserManager.getUserInfo()
     val categoryTotalCount = videoCategories.size

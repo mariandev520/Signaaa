@@ -4,7 +4,6 @@ package com.xilonet.signa.view
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
-import android.provider.MediaStore
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -75,8 +74,6 @@ import com.xilonet.signa.view.theme.SignaLight
 import com.xilonet.signa.view.theme.SignaYellow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.io.File
-import java.util.Vector
 
 @Composable
 fun DiccionariUI(context: Context, navController: NavController) {

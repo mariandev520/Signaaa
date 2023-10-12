@@ -3,7 +3,6 @@ package com.xilonet.signa.model
 import android.content.Context
 import android.util.Log
 import java.text.Normalizer
-import java.util.*
 import kotlin.collections.HashSet
 
 // Se comunica con los archivos y carpetas dentro de "assets" para que el resto de la app pueda
@@ -15,6 +14,9 @@ class VideoFilesManager(ctxt: Context) {
     private var searchQueue: List<LSMVideo> = emptyList() // Inicializa la cola vacía
     private val _videosByName: MutableMap<String, MutableList<LSMVideo>> = mutableMapOf()
     private val previousVideos = mutableListOf<LSMVideo>()
+
+
+
 
     init {
         ctxt.assets.list("lsm")?.forEach { category ->
@@ -33,6 +35,7 @@ class VideoFilesManager(ctxt: Context) {
             _categories.add(CategoryWithVideos(category, videos))
         }
     }
+
 
 
     // Devuelve todos los videos que "coinciden" con los caracteres de búsqueda.
@@ -116,6 +119,7 @@ class VideoFilesManager(ctxt: Context) {
         val temp = Normalizer.normalize(this, Normalizer.Form.NFD)
         return REGEX_UNACCENT.replace(temp, "")
     }
+
 }
 private val REGEX_UNACCENT = "\\p{InCombiningDiacriticalMarks}+".toRegex()
 

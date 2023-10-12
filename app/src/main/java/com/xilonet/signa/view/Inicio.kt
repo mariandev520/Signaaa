@@ -55,6 +55,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -110,7 +111,7 @@ import java.util.Locale
 @Composable
 fun DiccionarioUI(context: Context, navController: NavController) {
 
-
+    var isShowingMatchingVideos by remember { mutableStateOf(false) }
     val userInfo by remember { mutableStateOf(HTTPUserManager.getUserInfo()) }
 
     val isPortrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
@@ -139,21 +140,18 @@ fun DiccionarioUI(context: Context, navController: NavController) {
     val exoPlayerManager = ExoPlayerManager(context)
     val categoryNames = videoFilesManager.getCategoryNames()
 
+
     var name by remember { mutableStateOf(categoryNames[0]) }
     var searchQuery by remember { mutableStateOf("") }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        FullHeader(navController,
-            categoryNames, name,
-            { name = it },
-            { searchQuery = it })
+        FullHeader(navController, categoryNames, name, { name = it }, { searchQuery = it })
         if (name != "") {
             VideoGrid(videoFilesManager.search(name), context, exoPlayerManager)
         } else {
             VideoGrid(videoFilesManager.search(searchQuery), context, exoPlayerManager)
         }
     }
-
 }
 
 
@@ -367,27 +365,120 @@ private fun ScrollToTop(){
 }
 
 val SPACE_BETWEEN_VIDEOS = 30.dp
+@Composable
+private fun PinnedVideoRow(
+    videosFijados: List<VideoFilesManager.LSMVideo>,
+    ctxt: Context,
+    exoPlayerManager: ExoPlayerManager
+) {
+    LazyRow {
+        items(videosFijados) { video ->
+            PinnedVideoWithPreview(video, ctxt, exoPlayerManager)
+        }
+    }
+}
 
 @Composable
-private fun VideoGrid(videosToShow: List<VideoFilesManager.LSMVideo>,
-                      ctxt: Context,
-                      exoPlayerManager: ExoPlayerManager
+private fun PinnedVideoWithPreview(
+    video: VideoFilesManager.LSMVideo,
+    ctxt: Context,
+    exoPlayerManager: ExoPlayerManager
 ) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PinnedVideo(video, ctxt, exoPlayerManager)
+        Spacer(modifier = Modifier.width(16.dp))
+        VideoButtonRow(video, ctxt, exoPlayerManager) {
+            // Puedes agregar cualquier acción que desees cuando se presione el botón
+        }
+    }
+}
+
+
+@Composable
+private fun PinnedVideo(video: VideoFilesManager.LSMVideo, ctxt: Context, exoPlayerManager: ExoPlayerManager) {
+    // Aquí debes implementar la lógica para mostrar el video fijado en la pantalla
+    // Puedes utilizar un reproductor de video u otras vistas personalizadas según tus necesidades.
+    // A continuación, se muestra un ejemplo simple de cómo podrías hacerlo:
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Aquí puedes colocar la vista de tu video fijado
+        // Ejemplo: VideoView(video, exoPlayerManager)
+        Text(text = "Video Fijado: ${video.name}", modifier = Modifier.align(Alignment.Center))
+    }
+}
+@Composable
+private fun VideoGrid(
+    videosToShow: List<VideoFilesManager.LSMVideo>,
+    ctxt: Context,
+    exoPlayerManager: ExoPlayerManager
+) {
+    var isVideoPinned by remember { mutableStateOf(false) }
+    val videosFijados = remember { mutableStateListOf<VideoFilesManager.LSMVideo>() }
     val offset = with(LocalDensity.current) { -SPACE_BETWEEN_VIDEOS.roundToPx() }
+    var isShowingMatchingVideos by remember { mutableStateOf(false )}
 
     listState = rememberLazyListState()
     coroutineScope = rememberCoroutineScope()
 
-    LazyColumn(state = listState){
-        item {
-            Spacer(Modifier.height(SPACE_BETWEEN_VIDEOS))
+    Column {
+        // Botón para agregar/quitar videos fijados y controlar la visibilidad
+        Button(
+            onClick = {
+                if (isVideoPinned) {
+                    isVideoPinned = false
+                } else {
+                    isVideoPinned = true
+                    // Agregar el video actual a la lista de videos fijados
+                    videosToShow.firstOrNull()?.let { videosFijados.add(it) }
+                }
+            },
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(if (isVideoPinned) "Mostrar Videos Fijados" else "Agregar Video Fijado")
         }
-        itemsIndexed(videosToShow){
-                index, video -> VideoButtonRow(video, ctxt, exoPlayerManager) {
-            coroutineScope.launch {
-                listState.animateScrollToItem(index = index+1, scrollOffset = offset)
+
+        // Botón para mostrar videos que coinciden
+        Button(
+            onClick = {
+                isShowingMatchingVideos = !isShowingMatchingVideos
+            },
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text("Mostrar Videos Coincidentes")
+        }
+
+        // Mostrar videos fijados o videos coincidentes según el estado
+        if (isVideoPinned && !isShowingMatchingVideos) {
+            PinnedVideoRow(videosFijados, ctxt, exoPlayerManager)
+        } else if (isShowingMatchingVideos) {
+            val matchingVideos = videosFijados.filter { fijado ->
+                videosToShow.any { videoToShow ->
+                    videoToShow.name.equals(fijado.name, ignoreCase = true)
+                }
             }
-        }
+            PinnedVideoRow(matchingVideos, ctxt, exoPlayerManager)
+        } else {
+            // Lista de videos normales
+            LazyColumn(state = listState) {
+                item {
+                    Spacer(Modifier.height(SPACE_BETWEEN_VIDEOS))
+                }
+                itemsIndexed(videosToShow) { index, video ->
+                    // Verifica si el video está fijado o no
+                    if (!isVideoPinned && !isShowingMatchingVideos) {
+                        // Muestra la fila de video normal
+                        VideoButtonRow(video, ctxt, exoPlayerManager) {
+                            coroutineScope.launch {
+                                listState.animateScrollToItem(index = index + 1, scrollOffset = offset)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
