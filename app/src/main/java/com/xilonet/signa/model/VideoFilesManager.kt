@@ -84,6 +84,15 @@ class VideoFilesManager(ctxt: Context) {
         return searchQueue
     }
 
+    private fun Boolean.moveVideoToFronte(video: VideoFilesManager.LSMVideo) {
+
+    }
+
+
+    fun moveVideoToFront(video: LSMVideo) {
+        searchQueue = searchQueue.filter { it != video }.toMutableList()
+        (searchQueue as MutableList<LSMVideo>).add(0, video)
+    }
 
     fun getSimilarVideos(videoName: String): List<LSMVideo> {
         val normalizedQuery = videoName.lowercase().unaccent()
@@ -110,6 +119,9 @@ class VideoFilesManager(ctxt: Context) {
     // Devuelve todos los videos que pertenecen a una categoría específica
 
 
+
+
+
     data class LSMVideo(val name: String, val category: String, val path: String)
     data class CategoryWithVideos(val name: String, val videos: List<Any>?)
 
@@ -123,3 +135,4 @@ class VideoFilesManager(ctxt: Context) {
 }
 private val REGEX_UNACCENT = "\\p{InCombiningDiacriticalMarks}+".toRegex()
 
+data class LSMVideo(val name: String, val category: String, val path: String)
