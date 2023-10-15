@@ -54,7 +54,7 @@ fun SetupNavGraph(
                 videoCategories.forEach{
                         videoCat -> Log.d("VIDEOCAT", videoCat)
                 }
-                QuizUI(context, navController, videoCategories)
+                QuizUI(context, navController)
             }
         }
     }

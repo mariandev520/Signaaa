@@ -1,18 +1,33 @@
 package com.xilonet.signa.view
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.os.CountDownTimer
+import android.speech.RecognizerIntent
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,25 +36,35 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.ButtonDefaults.elevation
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.zIndex
 
 import androidx.navigation.NavController
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
@@ -49,351 +74,354 @@ import com.google.android.exoplayer2.ui.TimeBar
 import com.xilonet.signa.R
 import com.xilonet.signa.model.HTTPUserManager
 import com.xilonet.signa.model.QuizVideoRandomSelector
+import com.xilonet.signa.model.UserInfo
+import com.xilonet.signa.model.VideoFilesManager
 import com.xilonet.signa.model.android.ExoPlayerManager
 import com.xilonet.signa.view.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import java.util.*
 
-enum class ScreenMode {
-    PLAY, TIME_OUT, GAME_OVER, CORRECT, INCORRECT, ALL_FINISHED
-}
-
-private lateinit var coroutineScope: CoroutineScope
-
-
 
 
 @Composable
-fun QuizUI(context: Context, navController: NavController, categories: List<String>) {
-    coroutineScope = rememberCoroutineScope()
-    val exoPlayerManager by remember { mutableStateOf(ExoPlayerManager(context)) }
-    val randomSelector by remember { mutableStateOf(QuizVideoRandomSelector(context, categories)) }
-    var videoAndOptions by remember { mutableStateOf(randomSelector.getNextVideoAndOptions()) }
-    var timerFillPortion by remember { mutableStateOf(1.0f) }
-    var screenMode by remember { mutableStateOf(ScreenMode.PLAY) }
-    var heartsLeft by remember { mutableStateOf(5) }
-    var score by remember { mutableStateOf(0) }
-    var thisQuestionPoints by remember { mutableStateOf(0) }
-    var query by remember { mutableStateOf("") }
-
-    var currentTimer: CountDownTimer? by remember { mutableStateOf(null) }
-    if (currentTimer == null && screenMode == ScreenMode.PLAY) {
-        currentTimer = StartTimer(changeFillPortion = { it ->
-            timerFillPortion = it
-            thisQuestionPoints = (100 * it).toInt()
-        },
-            onTimeout = {
-                screenMode = ScreenMode.TIME_OUT
-                heartsLeft--
-            }
-        )
+fun QuizUI(context: Context, navController: NavController) {
 
 
+    val userInfo by remember { mutableStateOf(HTTPUserManager.getUserInfo()) }
 
-        Column(
-            horizontalAlignment = CenterHorizontally,
-            modifier = Modifier.background(
-                if (screenMode == ScreenMode.PLAY) SignaBackground else SignaDark
-            )
-        ) {
+    val isPortrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
 
-            if (screenMode == ScreenMode.PLAY) {
-                Spacer(Modifier.height(10.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    TimeBar(timerFillPortion)
-                    Spacer(Modifier.width(10.dp))
-                    HeartsLeft(heartsLeft)
-                }
-                Spacer(Modifier.height(10.dp))
-                // Aquí agregamos la barra de búsqueda
-                SearchBar(
-                    query = query,
-                    onQueryChanged = { query = it }, // Actualizamos la variable con el nuevo texto
-                    onSearchClicked = {
-                        // Aquí hacemos un foreach en la lista de categorías
-                        categories.forEach { category ->
-                            // Aquí comparamos el texto de búsqueda con el nombre de la categoría, ignorando las mayúsculas y minúsculas
-                            if (query.equals(category, ignoreCase = true)) {
-                                // Aquí mostramos la alerta que dice "es igual"
-                                var showAlert =
-                                    true // Cambiamos la variable a true para mostrar la alerta
-                            }
-                        }
-                    }
-                )
-                // Aquí agregamos la lista filtrada por el texto de búsqueda
-                val filteredCategories = categories.filter {
-                    it.contains(
-                        query,
-                        ignoreCase = true
-                    )
-                } // Esta es la lista filtrada por el texto de búsqueda
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(filteredCategories) { category ->
-                        Text(
-                            category,
-                            modifier = Modifier.padding(16.dp)
-                        ) // Aquí puedes mostrar cada categoría como quieras
-                    }
-                }
-                // Aquí agregamos el componente de alerta si la variable es true
-                val showAlert = false
-                if (showAlert) {
-                    EqualAlert(
-                        onConfirm = {
-                            var showAlert = false
-                        }, // Al confirmar, cambiamos la variable a false para ocultar la alerta
-                        onCancel = {
-                            var showAlert = false
-                        } // Al cancelar, también cambiamos la variable a false para ocultar la alerta
-                    )
-
-                }
-            }
-        }
-    }
-
-
-            // ...
+    val scaleFactor =
+        if (isPortrait) 1f else 0.5f // Factor de escala del 50% en orientación horizontal
 
 
 
 
 
-
-
-
-        when (screenMode) {
-            ScreenMode.PLAY -> {
-                Text(
-                    text = stringResource(R.string.quiz_prompt),
-                    fontFamily = Poppins,
-                    fontStyle = FontStyle.Normal,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp
-                )
-                Spacer(Modifier.height(4.dp))
-
-                Column(Modifier.padding(horizontal = 40.dp, vertical = 0.dp)) {
-                    if(videoAndOptions != null) {
-                        ImageOrVideoPlayer(context, videoAndOptions!!.videoPath, exoPlayerManager)
-                        Spacer(Modifier.height(25.dp))
-                        FourOptions(videoAndOptions!!.options, videoAndOptions!!.correctIndex,
-                            onClickCorrect = {
-                                screenMode = ScreenMode.CORRECT
-                                score += thisQuestionPoints
-                                thisQuestionPoints = 0
-                                currentTimer?.cancel()
-                                currentTimer = null
-                            },
-                            onClickIncorrect = {
-                                screenMode = ScreenMode.INCORRECT
-                                heartsLeft--
-                                currentTimer?.cancel()
-                                currentTimer = null
-                            }
-                        )
-                    }
-                }
-            }
-            ScreenMode.TIME_OUT -> {
-                AfterQuestionUI(stringResource(R.string.timeout), true, false) {
-                    videoAndOptions = randomSelector.getNextVideoAndOptions()
-                    currentTimer?.cancel()
-                    currentTimer = null
-                    screenMode = ScreenMode.PLAY
-                }
-            }
-            ScreenMode.CORRECT -> {
-                AfterQuestionUI(stringResource(R.string.correcto), false, false) {
-                    videoAndOptions = randomSelector.getNextVideoAndOptions()
-                    currentTimer?.cancel()
-                    currentTimer = null
-                    screenMode = ScreenMode.PLAY
-                }
-            }
-            ScreenMode.INCORRECT -> {
-                AfterQuestionUI(stringResource(R.string.incorrecto), true, false) {
-                    videoAndOptions = randomSelector.getNextVideoAndOptions()
-                    currentTimer?.cancel()
-                    currentTimer = null
-                    screenMode = ScreenMode.PLAY
-                }
-            }
-            ScreenMode.GAME_OVER -> {
-                AfterQuestionUI(stringResource(R.string.game_over), true, true) {
-                    coroutineScope.launch(Dispatchers.IO) {
-                        HTTPUserManager.postScore(score)
-                        coroutineScope.launch(Dispatchers.Main){
-                            navController.popBackStack()
-                        }
-                    }
-                }
-            }
-            ScreenMode.ALL_FINISHED -> {
-                AfterQuestionUI(stringResource(R.string.all_finished), false, true) {
-                    coroutineScope.launch(Dispatchers.IO) {
-                        HTTPUserManager.postScore(score)
-                        HTTPUserManager.postCategoryProgress(categories)
-                        coroutineScope.launch(Dispatchers.Main){
-                            navController.popBackStack()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-@Composable
-fun EqualAlert(
-    modifier: Modifier = Modifier,
-    onConfirm: () -> Unit = {},
-    onCancel: () -> Unit = {}
-) {
-    AlertDialog(
-        onDismissRequest = onCancel,
-        title = { Text("Es igual") },
-        text = { Text("El texto de búsqueda es igual al nombre de la categoría") },
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text("Aceptar")
-            }
-        },
-        dismissButton = {
-            Button(onClick = onCancel) {
-                Text("Cancelar")
-            }
-        },
-        modifier = modifier
-    )
-}
-
-
-@Composable
-fun SearchBar(
-    modifier: Modifier = Modifier,
-    query: String = "",
-    onQueryChanged: (String) -> Unit = {},
-    onSearchClicked: () -> Unit = {}
-) {
-    TextField(
-        value = query,
-        onValueChange = onQueryChanged,
-        modifier = modifier
+    Image(
+        painter = painterResource(id = R.drawable.backa),
+        contentDescription = null,
+        modifier = Modifier
+            .background(Color(0xFFE0E0E0))
             .fillMaxWidth()
-            .padding(16.dp),
-        label = { Text("Buscar") },
-        placeholder = { Text("Escribe algo...") },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = { onSearchClicked() }),
-        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Icono de búsqueda") },
-        trailingIcon = { Button(onClick = { onSearchClicked() }) { Text("Buscar") } }, // Aquí agregamos el botón de búsqueda
-        singleLine = true,
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = Color.White,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
-
-        )
-
+            .height(1500.dp)
+            .alpha(0.4f)
+            .scale(scaleFactor), // Aplicar la escala al fondo
+        contentScale = ContentScale.Crop
     )
 
 
+    val videoFilesManager = VideoFilesManager(context)
+    val exoPlayerManager = ExoPlayerManager(context)
+    val categoryNames = videoFilesManager.getCategoryNames()
+
+    var name by remember { mutableStateOf(categoryNames[0]) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        FullHeader(navController,
+            categoryNames, name,
+            { name = it },
+            { searchQuery = it })
+        if (name != "") {
+            VideoGrid(videoFilesManager.search(name), context, exoPlayerManager)
+        } else {
+            VideoGrid(videoFilesManager.search(searchQuery), context, exoPlayerManager)
+        }
+    }
+
+}
 
 
+@Composable
+private fun FullHeader(navController: NavController,
+                       categoryNames: List<String>,
+                       currentCategory: String,
+                       changeCategory: (String) -> Unit,
+                       changeQuery: (String) -> Unit
+) {
 
-    @Composable
-    fun FullHeader(navController: NavController, points: Int) {
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally,
+
+    Column {
+        Box(
             modifier = Modifier
-                .requiredHeight(120.dp)
                 .fillMaxWidth()
-                .background(SignaGreen)
+                .height(240.dp) // Aplicar la escala a la altura
+                .background(Color.Transparent)
         ) {
-            Box() {
-                HeaderTitle(stringResource(R.string.quiz))
-                Row(
-                    Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Spacer(Modifier.width(10.dp))
-                    BackButton(navController)
+            // Contenido de la pantalla inicial
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.guest_user_profile_pic),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(80.dp) // Aplicar la escala al tamaño de la imagen
+                        .clip(CircleShape)
+                        .background(Color.White)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp)) // Aplicar la escala al espacio
+
+                Text(
+                    text = "Invitado",
+                    style = MaterialTheme.typography.h5,
+                    color = Color.White
+                )
+            }
+        }
+        var searchQuery by remember { mutableStateOf("") }
+
+        val voiceRecognitionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+                val matches = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                if (!matches.isNullOrEmpty()) {
+                    val recognizedText = matches[0]
+                    // Handle the recognized text as needed
+                    // For example, you can set it in the TextField
+                    searchQuery = recognizedText
                 }
             }
-            Spacer(Modifier.height(8.dp))
-            ScoreBanner(score = points)
+
+        }
+        SearchBar(changeCategory, changeQuery, voiceRecognitionLauncher, searchQuery)
+
+        // ...
+
+
+        // ...
+    }
+
+
+
+
+
+    Spacer(modifier = Modifier.height(16.dp)) // Aplicar la escala al espacio
+
+
+// Agregar el SearchBar debajo de los botones
+
+// Agregar un botón para navegar a la pantalla de Diccionario si mostrarPantallaDiccionario es falso
+
+
+}
+
+
+@Composable
+private fun ButtonBelt(categoryNames: List<String>, currentCategory: String,
+                       changeCategory: (String) -> Unit){
+    LazyRow(){
+        items(categoryNames) {
+                category -> CategoryButton(category, category == currentCategory,
+            changeCategory)
+        }
+        item {
+            ButtonSpacer()
         }
     }
 }
+
 @Composable
-private fun ScoreBanner(profilePic: Painter = painterResource(R.drawable.guest_user_profile_pic),
-                        score: Int = 0
+private fun CategoryButton(text: String,
+                           selected: Boolean = false,
+                           changeCategory: (String) -> Unit
 ){
-    Button(
-        onClick = {},
-        colors = ButtonDefaults.buttonColors(SignaLight),
-        modifier = Modifier
-            .fillMaxWidth(0.5f)
-            .height(40.dp),
-        shape = RoundedCornerShape(40.dp),
-        contentPadding = PaddingValues(0.dp),
-    ) {
-        Image(
-            painter = profilePic,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
+    Row(){
+        ButtonSpacer()
+        Button(
+            onClick = {
+                changeCategory(text)
+                ClosePreviousVideo()
+                ClosePreviousVideo = {}
+                ScrollToTop()
+            },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = if(selected) SignaDark else SignaLight
+            ),
             modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .border(2.dp, SignaDark, CircleShape),
-            alignment = Alignment.CenterStart
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(
-            text = stringResource(R.string.puntos),
-            style = MaterialTheme.typography.body2,
-            textAlign = TextAlign.Start,
-        )
-        Spacer(Modifier.weight(1f))
-        Text(
-            text = score.toString(),
-            style = MaterialTheme.typography.body2,
-            textAlign = TextAlign.End,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(Modifier.width(16.dp))
+                .width(108.dp)
+                .height(22.dp),
+            shape = RoundedCornerShape(100),
+            contentPadding = PaddingValues(0.dp)
+        ){
+            Text(text = text, style = MaterialTheme.typography.button,
+                color = if(selected) SignaLight else SignaDark)
+        }
     }
 }
 
 @Composable
-private fun TimeBar(fillPortion: Float){
-    LinearProgressIndicator(
-        backgroundColor = SignaDarkVeryTransparent,
-        color = SignaRed,
-        progress = fillPortion,
-        modifier = Modifier
-            .height(20.dp)
-            .clip(RoundedCornerShape(100))
-            .border(1.dp, SignaDark, RoundedCornerShape(100))
-    )
+private fun ButtonSpacer(){
+    Spacer(Modifier.width(8.dp))
+}
+
+
+
+@Composable
+private fun SearchBar(
+    changeCategory: (String) -> Unit,
+    changeQuery: (String) -> Unit,
+    voiceRecognitionLauncher: ActivityResultLauncher<Intent>,
+    searchQuery: String
+) {
+    var text by remember { mutableStateOf(searchQuery) }
+    val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth(0.95f)
+    ) {
+        TextField(
+            value = text,
+            onValueChange = {
+                text = it
+                val textString = it
+                if (textString.isNotBlank()) {
+                    changeCategory("")
+                    changeQuery(textString)
+                    ClosePreviousVideo()
+                    ClosePreviousVideo = {}
+                } else {
+                    changeQuery("")
+                }
+                ScrollToTop()
+            },
+            textStyle = MaterialTheme.typography.subtitle1,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            leadingIcon = {
+                Image(
+                    painter = painterResource(R.drawable.ic_baseline_search_24),
+                    contentDescription = null,
+                    modifier = Modifier.height(24.dp),
+                    alpha = 0.5f
+                )
+            },
+            modifier = Modifier
+                .weight(1f)
+                .padding(8.dp),
+        )
+
+        IconButton(
+            onClick = {
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+                    )
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+                }
+                voiceRecognitionLauncher.launch(intent)
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Phone,
+                contentDescription = "Reconocimiento de voz",
+                tint = SignaDark
+            )
+        }
+    }
+}
+
+
+private lateinit var listState : LazyListState
+private lateinit var coroutineScope : CoroutineScope
+
+private fun ScrollToTop(){
+    coroutineScope.launch {
+        listState.animateScrollToItem(index = 0)
+    }
+}
+
+
+@Composable
+private fun VideoGrid(videosToShow: List<VideoFilesManager.LSMVideo>,
+                      ctxt: Context,
+                      exoPlayerManager: ExoPlayerManager
+) {
+    val offset = with(LocalDensity.current) { -SPACE_BETWEEN_VIDEOS.roundToPx() }
+
+    listState = rememberLazyListState()
+    coroutineScope = rememberCoroutineScope()
+
+    LazyColumn(state = listState){
+        item {
+            Spacer(Modifier.height(SPACE_BETWEEN_VIDEOS))
+        }
+        itemsIndexed(videosToShow){
+                index, video -> VideoButtonRow(video, ctxt, exoPlayerManager) {
+            coroutineScope.launch {
+                listState.animateScrollToItem(index = index+1, scrollOffset = offset)
+            }
+        }
+        }
+    }
 }
 
 @Composable
-private fun HeartsLeft(heartsLeft: Int){
-    Column(){
-        Spacer(Modifier.height(6.dp))
-        Row(verticalAlignment = Alignment.CenterVertically){
-            Column(){
-                Image(painterResource(R.drawable.heart), null,
-                    modifier = Modifier.size(30.dp))
+private fun VideoButtonRow(video1: VideoFilesManager.LSMVideo,
+                           ctxt: Context,
+                           exoPlayerManager: ExoPlayerManager,
+                           scrollToMe: () -> Unit
+) {
+    Column(Modifier.padding(horizontal = SPACE_BETWEEN_VIDEOS)){
+        Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()){
+            VideoButton(video1.name, video1.path, ctxt, exoPlayerManager, scrollToMe)
+        }
+        Spacer(Modifier.height(SPACE_BETWEEN_VIDEOS))
+    }
+}
+
+// We close the composable of the previous video (we must have only one at a time)
+// We'll put the content inside brackets when we create the video we'll later close
+private var ClosePreviousVideo = {}
+
+@Composable
+private fun VideoButton(videoName: String,
+                        videoPath: String,
+                        ctxt: Context,
+                        exoPlayerManager: ExoPlayerManager,
+                        scrollToMe: () -> Unit,
+                        icon: Painter = painterResource(R.drawable.ic_baseline_play_arrow_24)
+) {
+    var videoOpen by remember {mutableStateOf(false)}
+    Row(){
+        Button(
+            onClick = {
+                if(!videoOpen){
+                    scrollToMe()
+                    ClosePreviousVideo()
+                    ClosePreviousVideo = {videoOpen = false}
+                }
+                videoOpen = !videoOpen
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(backgroundColor = SignaLight),
+            shape = RoundedCornerShape(10.dp),
+            border = BorderStroke(1.dp, SignaDark)
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(icon, null, Modifier.size(80.dp))
+                Text(text = videoName, style = MaterialTheme.typography.body1, fontSize = 16.sp)
                 Spacer(Modifier.height(8.dp))
+                AnimatedVisibility(visible = videoOpen){
+                    ImageOrVideoPlayer(ctxt, videoPath, exoPlayerManager)
+                }
             }
-            Text("x$heartsLeft", style = MaterialTheme.typography.body1, color = SignaRed)
         }
     }
 }
@@ -412,7 +440,7 @@ private fun ImageOrVideoPlayer(ctxt: Context, path: String, exoPlayerManager: Ex
 private fun ImagePlayer(ctxt: Context, imagePath: String){
     Box(modifier = Modifier
         .clip(RoundedCornerShape(16.dp))
-        .border(width = 3.dp, color = SignaDark, shape = RoundedCornerShape(16.dp))
+        .border(width = 2.dp, color = SignaDark, shape = RoundedCornerShape(16.dp))
     ){
         Image(
             BitmapFactory.decodeStream(ctxt.assets.open(imagePath)).asImageBitmap(),
@@ -425,112 +453,229 @@ private fun ImagePlayer(ctxt: Context, imagePath: String){
 }
 
 @Composable
-private fun VideoPlayer(ctxt: Context, videoPath: String, exoPlayerManager: ExoPlayerManager){
+private fun VideoPlayer(ctxt: Context, videoPath: String, exoPlayerManager: ExoPlayerManager) {
     val exoPlayer = remember(ctxt) { exoPlayerManager.getExoPlayer(videoPath) }
 
-    Box(modifier = Modifier
-        .clip(RoundedCornerShape(16.dp))
-        .border(width = 3.dp, color = SignaDark, shape = RoundedCornerShape(16.dp))
-    ){
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .border(width = 2.dp, color = SignaDark, shape = RoundedCornerShape(16.dp))
+    ) {
         // Implementing ExoPlayer
         AndroidView(
-            factory = {context -> StyledPlayerView(context).apply {
-                player = exoPlayer
-                useController = false
-                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-            }},
+            factory = { context ->
+                StyledPlayerView(context).apply {
+                    player = exoPlayer
+                    useController = false
+                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                }
+            },
             modifier = Modifier
                 .aspectRatio(1.35f)
                 .clip(RoundedCornerShape(16.dp))
         )
     }
-}
 
-@Composable
-private fun FourOptions(options: Vector<String>, correctIndex: Int,
-                        onClickCorrect: () -> Unit, onClickIncorrect: () -> Unit
-){
-    Column(horizontalAlignment = CenterHorizontally, modifier = Modifier.fillMaxWidth()){
-        Row(horizontalArrangement = Arrangement.Center){
-            OptionButton(options[0], 0 == correctIndex, onClickCorrect, onClickIncorrect)
-            Spacer(Modifier.width(16.dp))
-            OptionButton(options[1], 1 == correctIndex, onClickCorrect, onClickIncorrect)
+
+
+    @Composable
+    fun InicioUIi(navController: NavController) {
+        val userInfo by remember { mutableStateOf(HTTPUserManager.getUserInfo()) }
+
+        val isPortrait =
+            LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
+
+        val scaleFactor =
+            if (isPortrait) 1f else 0.5f // Factor de escala del 50% en orientación horizontal
+
+        Image(
+            painter = painterResource(id = R.drawable.backa),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1500.dp)
+                .alpha(0.4f)
+                .scale(scaleFactor), // Aplicar la escala al fondo
+            contentScale = ContentScale.Crop
+        )
+
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp * scaleFactor) // Aplicar la escala a la altura
+                    .background(Color.Transparent)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.guest_user_profile_pic),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(80.dp * scaleFactor) // Aplicar la escala al tamaño de la imagen
+                            .clip(CircleShape)
+                            .background(Color.White)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp * scaleFactor)) // Aplicar la escala al espacio
+                    Text(
+                        text = userInfo?.firstName ?: "Invitado",
+                        style = MaterialTheme.typography.h5,
+                        color = Color.White
+                    )
+                }
+            }
+
+
+            Spacer(modifier = Modifier.height(16.dp * scaleFactor)) // Aplicar la escala al espacio
+
+
         }
-        Spacer(Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.Center){
-            OptionButton(options[2], 2 == correctIndex, onClickCorrect, onClickIncorrect)
-            Spacer(Modifier.width(16.dp))
-            OptionButton(options[3], 3 == correctIndex, onClickCorrect, onClickIncorrect)
-        }
+
+
     }
 }
 
+
+    @Composable
+    private fun FullHeader(userInfo: UserInfo?) {
+        Column(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .requiredHeight(120.dp)
+                .fillMaxWidth()
+                .background(SignaGreen)
+        ) {
+            HeaderTitle(stringResource(R.string.inicio))
+            Spacer(Modifier.height(10.dp))
+            val fullUserName = if (userInfo != null) {
+                userInfo.firstName + " " + userInfo.lastName
+            } else {
+                stringResource(R.string.guest)
+            }
+            UserInfoBanner(nameToDisplay = fullUserName)
+            Log.d("LOGIN", fullUserName)
+        }
+    }
+
 @Composable
-private fun OptionButton(text: String, correct: Boolean,
-                         onClickCorrect: () -> Unit, onClickIncorrect: () -> Unit
+private fun UserInfoBanner(
+    nameToDisplay: String = stringResource(R.string.guest),
+    profilePic: Painter = painterResource(R.drawable.guest_user_profile_pic)
 ){
     Button(
-        onClick = if(correct) onClickCorrect else onClickIncorrect,
-        colors = ButtonDefaults.buttonColors(backgroundColor = SignaLight),
-        shape = RoundedCornerShape(10.dp),
-        border = BorderStroke(1.dp, SignaDark)
+        onClick = {/* TODO: Se podría mostrar un drop-down con más información del usuario */},
+        colors = ButtonDefaults.buttonColors(SignaLight),
+        modifier = Modifier
+            .fillMaxWidth(0.9f)
+            .height(40.dp),
+        shape = RoundedCornerShape(40.dp),
+        contentPadding = PaddingValues(0.dp),
     ) {
-        Text(text = text, style = MaterialTheme.typography.body1, fontSize = 16.sp)
+        Image(
+            painter = profilePic,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .border(2.dp, SignaYellow, CircleShape),
+            alignment = Alignment.CenterStart
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = nameToDisplay,
+            style = MaterialTheme.typography.body2,
+            textAlign = TextAlign.Start,
+        )
+        Spacer(Modifier.weight(1f))
+
     }
 }
 
 @Composable
-private fun AfterQuestionUI(message: String, msgInRed: Boolean, mentionSaving: Boolean,
-                            onContinue: () -> Unit){
-    val infiniteColorTransition = rememberInfiniteTransition()
-    val color by infiniteColorTransition.animateColor(
-        initialValue = SignaDark,
-        targetValue = SignaLight,
-        animationSpec = infiniteRepeatable(tween(600), RepeatMode.Reverse)
+private fun InicioButton(
+    text: String,
+    graphicBgColor: Color,
+    icon: Painter,
+    onClick: () -> Unit
+) {
+    var isPressed by remember { mutableStateOf(false) }
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.9f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessLow)
     )
+
     Button(
-        onClick = onContinue,
+        onClick = {
+            onClick()
+            isPressed = true
+            // Restaurar el estado después de un breve retraso para la animación de pulsación.
+            GlobalScope.launch {
+                delay(100)
+                isPressed = false
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .padding(16.dp)
+            .shadow(4.dp, RoundedCornerShape(8.dp), clip = false),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(2.dp, SignaDark),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = Color.Transparent,
-        ),
-        modifier = Modifier.fillMaxSize(),
-        border = BorderStroke(0.dp, Color.Transparent),
-        elevation = elevation(
-            defaultElevation = 0.dp,
-            pressedElevation = 0.dp
-        ),
+            backgroundColor = if (isPressed) SignaBackground else SignaGreen,
+            contentColor = Color.White
+        )
     ) {
-        Column(horizontalAlignment = CenterHorizontally){
-            Text(text = message,
-                fontFamily = Poppins,
-                fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Bold,
-                fontSize = 36.sp,
-                color = if(msgInRed) SignaRed else SignaGreen
-            )
-            Text(text = if(mentionSaving) {
-                stringResource(R.string.toca_para_continuar_y_guardar)
-            } else {stringResource(R.string.toca_para_continuar)},
-                style = MaterialTheme.typography.body1,
-                color = color
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+                .clickable { onClick() }
+                .scale(scale) // Aplicar la animación de escala
+                .align(Alignment.CenterVertically)
+        ) {
+            BackgroundGraphicWithLogo(icon = icon, bgColor = graphicBgColor)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.h5,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
 }
 
-private fun StartTimer(changeFillPortion: (Float) -> Unit, onTimeout: () -> Unit): CountDownTimer {
-    val BONUS: Long = 2000
-    val SECONDS_TO_TIME: Long = 13000
-    val timer = object: CountDownTimer(SECONDS_TO_TIME + BONUS, 15) {
-        override fun onTick(millisUntilFinished: Long) {
-            val portion = minOf(1.0f, millisUntilFinished.toFloat() / SECONDS_TO_TIME)
-            changeFillPortion(portion)
-        }
 
-        override fun onFinish() {
-            onTimeout()
-        }
+
+@Composable
+private fun BackgroundGraphicWithLogo(size: Dp = 128.dp,
+                                      icon: Painter,
+                                      bgColor: Color
+){
+    Box(){
+        Image(
+            painterResource(R.drawable.background_pentagon),
+            null,
+            Modifier.size(size),
+            colorFilter = ColorFilter.tint(bgColor)
+        )
+        Image(
+            icon,
+            null,
+            Modifier
+                .zIndex(1f)
+                .size(size)
+                .padding(0.dp, 0.dp, 0.dp, 5.dp)
+        )
     }
-    timer.start()
-    return timer
-}
+     }
+
