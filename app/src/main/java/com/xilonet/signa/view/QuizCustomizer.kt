@@ -2,6 +2,7 @@ package com.xilonet.signa.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,19 +35,21 @@ import com.xilonet.signa.controller.Screen
 fun EarIcons(navController: NavController) {
 
     Image(
-        painter = painterResource(id = R.drawable.backa), // Reemplaza con el ID de tu imagen de fondo
+        painter = painterResource(id = R.drawable.back), // Reemplaza con el ID de tu imagen de fondo
         contentDescription = null,
         modifier = Modifier
             .fillMaxWidth()
-            .height(1500.dp), // Ajusta la altura según tus necesidade
+            .height(1300.dp), // Ajusta la altura según tus necesidade
         contentScale = ContentScale.Crop
     )
+
+    Spacer(Modifier.padding(20.dp))
 
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFE0E0E0)) // Color pastel claro
+            .background(Color(0xFFB2CECD)) // Color pastel claro
     ) {
         Column(
             modifier = Modifier
@@ -63,20 +66,24 @@ fun EarIcons(navController: NavController) {
                     navController.navigate(Screen.Inicio.route)
                 }
             )
-            EarIcon(
-                icon = Icons.Default.Star,
-                color = Color(0xFF80CBC4), // Color pastel claro
-                contentDescription = "Ear Icon"
-            )
-
             Spacer(Modifier.padding(15.dp))
+            Image(
+                painter = painterResource(id = R.drawable.personas), // Reemplaza con el ID de tu imagen de fondo
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.clickable {
+                    navController.navigate(Screen.Inicio.route)
+                }
+            )
+            Spacer(Modifier.padding(35.dp))
 
 
             // Otro icono (sin navegación)
-            EarIcon(
-                icon = Icons.Default.Face,
-                color = Color(0xFFFFCC80), // Color pastel claro
-                contentDescription = "Blocked Ear Icon"
+            Image(
+                painter = painterResource(id = R.drawable.discapacidad),
+                contentDescription = null,
+                // Ajusta la altura según tus necesidade
+                contentScale = ContentScale.Crop
             )
             Column(
                 modifier = Modifier
@@ -87,7 +94,7 @@ fun EarIcons(navController: NavController) {
 
             {
                 ClickableText(
-                    text = AnnotatedString("aqui "),
+                    text = AnnotatedString(" "),
                     onClick = { offset ->
                         // Navegar a la ubicación deseada cuando se hace clic en el icono de la estrella
                         navController.navigate(Screen.Quiz.route)
