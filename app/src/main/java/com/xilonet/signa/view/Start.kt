@@ -89,7 +89,7 @@ fun DiccionariUI(context: Context, navController: NavController) {
 
 
     Image(
-        painter = painterResource(id = R.drawable.backa),
+        painter = painterResource(id = R.drawable.backaa),
         contentDescription = null,
         modifier = Modifier
             .fillMaxWidth()

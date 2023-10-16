@@ -5,21 +5,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
-import android.os.CountDownTimer
 import android.speech.RecognizerIntent
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColor
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,13 +28,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.ButtonDefaults.elevation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -56,8 +47,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -69,21 +58,17 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
-import com.google.android.exoplayer2.ui.TimeBar
 
 import com.xilonet.signa.R
 import com.xilonet.signa.model.HTTPUserManager
-import com.xilonet.signa.model.QuizVideoRandomSelector
 import com.xilonet.signa.model.UserInfo
 import com.xilonet.signa.model.VideoFilesManager
 import com.xilonet.signa.model.android.ExoPlayerManager
 import com.xilonet.signa.view.theme.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import java.util.*
 
 
@@ -104,7 +89,7 @@ fun QuizUI(context: Context, navController: NavController) {
 
 
     Image(
-        painter = painterResource(id = R.drawable.backa),
+        painter = painterResource(id = R.drawable.backaa),
         contentDescription = null,
         modifier = Modifier
             .background(Color(0xFFE0E0E0))
@@ -489,7 +474,7 @@ private fun VideoPlayer(ctxt: Context, videoPath: String, exoPlayerManager: ExoP
             if (isPortrait) 1f else 0.5f // Factor de escala del 50% en orientación horizontal
 
         Image(
-            painter = painterResource(id = R.drawable.backa),
+            painter = painterResource(id = R.drawable.backaa),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()

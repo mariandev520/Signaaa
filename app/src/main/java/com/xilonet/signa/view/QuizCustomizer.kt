@@ -11,17 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -33,12 +28,21 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.xilonet.signa.R
 import com.xilonet.signa.controller.Screen
+import com.xilonet.signa.view.theme.SignaYellow
 
 
 @Composable
 fun EarIcons(navController: NavController) {
+
+    val gradientColors = listOf(
+
+        SignaYellow,
+        Color(0xFFE0E0E0)// Cambia esto al color de fondo que desees
+    )
+
+
     Image(
-        painter = painterResource(id = R.drawable.back), // Reemplaza con el ID de tu imagen de fondo
+        painter = painterResource(id = R.drawable.backa), // Reemplaza con el ID de tu imagen de fondo
         contentDescription = null,
         modifier = Modifier
             .fillMaxWidth()
@@ -51,7 +55,7 @@ fun EarIcons(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFE0F2F1)) // Color pastel claro
+            .background(brush = Brush.verticalGradient(gradientColors)),
     ) {
         Column(
             modifier = Modifier
@@ -84,7 +88,7 @@ fun EarIcons(navController: NavController) {
             )
             Spacer(Modifier.padding(5.dp))
             Text(
-                text = "Buscar Seña ",
+                text = "Oyente ",
                 style = TextStyle(
                     fontSize = 19.sp, // Tamaño de fuente más grande
                     fontWeight = FontWeight.Normal,
@@ -105,7 +109,7 @@ fun EarIcons(navController: NavController) {
             )
             Spacer(Modifier.padding(5.dp))
             Text(
-                text = "Traductor de Señas",
+                text = "No Oyente",
                 style = TextStyle(
                     fontSize = 19.sp, // Tamaño de fuente más grande
                     fontWeight = FontWeight.Normal,

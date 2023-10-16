@@ -7,23 +7,17 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.speech.RecognizerIntent
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -31,13 +25,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -55,7 +45,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,9 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -77,31 +64,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.xilonet.signa.R
 import com.xilonet.signa.model.HTTPUserManager
-import com.xilonet.signa.model.UserInfo
 import com.xilonet.signa.model.VideoFilesManager
 import com.xilonet.signa.model.android.ExoPlayerManager
-import com.xilonet.signa.view.theme.HeaderTitle
-import com.xilonet.signa.view.theme.SignaBackground
 import com.xilonet.signa.view.theme.SignaDark
-import com.xilonet.signa.view.theme.SignaGreen
 import com.xilonet.signa.view.theme.SignaLight
-import com.xilonet.signa.view.theme.SignaYellow
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -127,7 +103,7 @@ fun DiccionarioUI(context: Context, navController: NavController) {
 
 
     Image(
-        painter = painterResource(id = R.drawable.backa),
+        painter = painterResource(id = R.drawable.backaa),
         contentDescription = null,
         modifier = Modifier
             .background(Color(0xFFE0E0E0))
@@ -284,37 +260,36 @@ private fun SearchBar(
                     modifier = Modifier.height(24.dp),
                     alpha = 0.5f
                 )
-
-                IconButton(
-                    onClick = {
-                        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                            putExtra(
-                                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-                            )
-                            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-                        }
-                        voiceRecognitionLauncher.launch(intent)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Phone,
-                        contentDescription = "Reconocimiento de voz",
-                        tint = SignaDark
-
-                    )
-
-                }
             },
-
             modifier = Modifier
                 .weight(1f)
                 .padding(8.dp),
         )
 
-
+        IconButton(
+            onClick = {
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+                    )
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+                }
+                voiceRecognitionLauncher.launch(intent)
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Phone,
+                contentDescription = "Reconocimiento de voz",
+                tint = SignaDark
+            )
+        }
     }
 }
+
+
+
+
 
 
 private lateinit var listState : LazyListState
