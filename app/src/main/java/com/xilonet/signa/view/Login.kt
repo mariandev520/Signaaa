@@ -22,6 +22,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -86,10 +88,11 @@ fun LoginUI(navController: NavController) {
     )
 
 
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Agrega un fondo con el gradiente
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -105,7 +108,10 @@ fun LoginUI(navController: NavController) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            LanguageSelector()
             Spacer(Modifier.fillMaxHeight(0.25f))
+
 
 
             LoginFieldsAndButton() { navController.navigate(Screen.QuizCustomizer.route) }
@@ -116,6 +122,69 @@ fun LoginUI(navController: NavController) {
     }
 
 }
+
+@Composable
+fun LanguageSelector() {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedLanguage by remember { mutableStateOf("English") } // Idioma seleccionado
+
+    val languages = listOf("English", "Español", "Français", "Deutsch", "Italiano")
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = true }
+                .background(Color.White, shape = RoundedCornerShape(16.dp))
+                .padding(8.dp)
+        ) {
+            Text(
+                text = "Select Language",
+                fontSize = 18.sp,
+                color = Color.Black
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (expanded) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent, shape = RoundedCornerShape(8.dp))
+            ) {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    languages.forEach { language ->
+                        DropdownMenuItem(onClick = {
+                            selectedLanguage = language
+                            expanded = false
+                        }) {
+                            Text(
+
+                                text = language,
+                                color = Color.Black,
+
+
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Muestra el idioma seleccionado
+
+}
+
+
 
 @Composable
 fun AnimatedTextWithFade() {
